@@ -156,7 +156,7 @@ export class LineConnector extends botbuilder.ChatConnector {
 
 
         messages.map((msg) => {
-            console.log("msg", msg)
+            // console.log("msg", msg)
             if (msg.attachments !== undefined) {
                 _this.renderAttachment(msg);
 
