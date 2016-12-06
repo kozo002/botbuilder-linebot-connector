@@ -142,7 +142,7 @@ var LineConnector = (function (_super) {
     LineConnector.prototype.send = function (messages, done) {
         var _this = this;
         messages.map(function (msg) {
-            console.log("msg", msg);
+            // console.log("msg", msg)
             if (msg.attachments !== undefined) {
                 _this.renderAttachment(msg);
             }
@@ -200,7 +200,7 @@ var LineConnector = (function (_super) {
     };
     LineConnector.prototype.renderAttachment = function (msg) {
         var _this = this;
-        console.log("msg", msg);
+        // console.log("msg", msg);
         var l = msg.attachments.length;
         if (l === 1) {
             msg.attachments.map(function (a) {
@@ -208,7 +208,7 @@ var LineConnector = (function (_super) {
                     case 'application/vnd.microsoft.card.hero':
                     case 'application/vnd.microsoft.card.thumbnail':
                         var tc = a.content;
-                        console.log("tc", tc);
+                        // console.log("tc", tc);
                         if (tc.title === undefined) {
                             if (tc.images.length > 0) {
                                 var r_1 = {
@@ -281,7 +281,7 @@ var LineConnector = (function (_super) {
                         r_3.template.columns.push(c_1);
                 }
             });
-            console.log("r", r_3);
+            // console.log("r", r)
             _this.reply(msg.address.useAuth, r_3);
         }
         // if(msg.attachments)
