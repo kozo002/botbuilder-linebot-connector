@@ -224,7 +224,7 @@ export class LineConnector extends botbuilder.ChatConnector {
 
     renderAttachment(msg) {
         var _this = this;
-        console.log("msg", msg);
+        // console.log("msg", msg);
         let l = msg.attachments.length;
         if (l === 1) {
             msg.attachments.map((a) => {
@@ -232,7 +232,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                     case 'application/vnd.microsoft.card.hero':
                     case 'application/vnd.microsoft.card.thumbnail':
                         var tc = a.content;
-                        console.log("tc", tc);
+                        // console.log("tc", tc);
                         if (tc.title === undefined) {
                             if (tc.images.length > 0) {
                                 let r = {
@@ -310,7 +310,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                 }
 
             })
-            console.log("r", r)
+            // console.log("r", r)
             _this.reply(msg.address.useAuth, r);
 
 
