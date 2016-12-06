@@ -54,7 +54,7 @@
 21 silly publish   devDependencies: { '@types/body-parser': '^0.0.33', '@types/parse': '^1.2.32' },
 21 silly publish   readme: '# botbuilder-linebot-connector\n\n  [![NPM Version][npm-image]][npm-url]\n  [![NPM Downloads][downloads-image]][downloads-url]\n  [![NPM Dependencies][dependencies-image]][dependencies-url]\n  [![Build][travis-image]][travis-url]\n\nLINE Messaging API for Node.js\n\n# About LINE Messaging API\n\nPlease refer to the official API documents for details.\n- Developer Documents - https://developers.line.me/messaging-api/overview\n- API Reference - https://devdocs.line.me/en/#messaging-api\n\n# Installation\n\n```bash\n$ npm install botbuilder-linebot-connector --save\n```\n\n\n#usage\n\n```bash\nimport { ParseServer } from \'parse-server\';\nimport Parse = require(\'parse/node\');\nimport * as express from \'express\';\nimport * as builder from \'botbuilder\';\nvar LineConnector = require( "botbuilder-linebot-connector");\n\nvar lineConnector = new LineConnector.LineConnector({\n    channelId: "1489577XXX",\n    channelSecret: "1752cff54cf3db3a9f4a4bdd6165aXXX",\n    channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilXXX"\n});\nvar bot = new builder.UniversalBot(lineConnector);\n\nbot.dialog(\'/\', [\n    function (session) {\n        // Prompt the user to select their preferred locale\n        session.send("hello world");\n    }   \n]);\n\nlet api = new ParseServer({\n    databaseURI: \'mongodb://localhost:27017/linebotconnector\', // Connection string for your MongoDB database\n    appId: \'myAppId_linebotconnector\',\n    masterKey: \'myMasterKeylinebotconnector\', // Keep this key secret!\n    javascriptKey: \'javascriptKey_bot\',\n\n    fileKey: \'optionalFileKey_pet\',\n    serverURL: \'http://localhost:1337/parse\' // Don\'t forget to change to https if needed\n});\n\n\nvar app = express();\napp.use(\'/parse\', api);\napp.listen(1337, function () {\n    console.log(\'parse-server-example running on port 1337.\');\n});\n\nParse.initialize("myAppId_linebotconnector", "javascriptKey_bot");\n//you can use different bot\napp.use(\'/linebot\', lineConnector.listen());\n\napp.get(\'*\', function (req, res) {\n    res.send(200, \'Hello Tarot Bot\');\n});\napp.listen(process.env.port || 9090, function () {\n    console.log(\'server is running.\');\n});\n```\n\ncommand line:\nngrok http 9090\n\nline console\nhttps://xxx.xxx.xxx/\n\ndone',
 21 silly publish   readmeFilename: 'README.md',
-21 silly publish   gitHead: '8a2dd6a3794b4b92520eb495a65fc6f6977dadc2',
+21 silly publish   gitHead: '94d288ac93afdb9ce45376f59154e1b6696723de',
 21 silly publish   _id: 'botbuilder-linebot-connector@1.0.4',
 21 silly publish   _shasum: 'a62b616efadcd7fa45767aa24faabbc667ae2587',
 21 silly publish   _from: '.' }
@@ -75,22 +75,22 @@
 29 silly publish uploading /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package.tgz
 30 verbose request uri https://registry.npmjs.org/botbuilder-linebot-connector
 31 verbose request sending authorization for write operation
-32 info attempt registry request try #1 at 12:29:40
+32 info attempt registry request try #1 at 12:29:55
 33 verbose request using bearer token for auth
-34 verbose request id 0458f227f1f68794
+34 verbose request id e62d61fa9b4432c1
 35 http request PUT https://registry.npmjs.org/botbuilder-linebot-connector
 36 http 403 https://registry.npmjs.org/botbuilder-linebot-connector
 37 verbose headers { 'content-type': 'application/json',
 37 verbose headers   'cache-control': 'max-age=300',
 37 verbose headers   'content-length': '95',
 37 verbose headers   'accept-ranges': 'bytes',
-37 verbose headers   date: 'Tue, 06 Dec 2016 04:29:42 GMT',
+37 verbose headers   date: 'Tue, 06 Dec 2016 04:29:56 GMT',
 37 verbose headers   via: '1.1 varnish',
 37 verbose headers   connection: 'keep-alive',
-37 verbose headers   'x-served-by': 'cache-itm7425-ITM',
+37 verbose headers   'x-served-by': 'cache-itm7423-ITM',
 37 verbose headers   'x-cache': 'MISS',
 37 verbose headers   'x-cache-hits': '0',
-37 verbose headers   'x-timer': 'S1480998581.545404,VS0,VE682',
+37 verbose headers   'x-timer': 'S1480998596.278846,VS0,VE673',
 37 verbose headers   vary: 'Accept-Encoding' }
 38 verbose request invalidating /Users/chienhunglin/.npm/registry.npmjs.org/botbuilder-linebot-connector on PUT
 39 error publish Failed PUT 403
