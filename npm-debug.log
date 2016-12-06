@@ -1,0 +1,119 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/chienhunglin/.nvm/versions/node/v6.7.0/bin/node',
+1 verbose cli   '/Users/chienhunglin/.nvm/versions/node/v6.7.0/bin/npm',
+1 verbose cli   'publish' ]
+2 info using npm@3.10.3
+3 info using node@v6.7.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   escapedName: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/chienhunglin/Dropbox/chatbot/botbuilder-linebot-connector',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package.tgz not in flight; packing
+9 verbose correctMkdir /Users/chienhunglin/.npm correctMkdir not in flight; initializing
+10 info lifecycle botbuilder-linebot-connector@1.0.4~prepublish: botbuilder-linebot-connector@1.0.4
+11 silly lifecycle botbuilder-linebot-connector@1.0.4~prepublish: no script for prepublish, continuing
+12 verbose tar pack [ '/Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package.tgz',
+12 verbose tar pack   '/Users/chienhunglin/Dropbox/chatbot/botbuilder-linebot-connector' ]
+13 verbose tarball /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package.tgz
+14 verbose folder /Users/chienhunglin/Dropbox/chatbot/botbuilder-linebot-connector
+15 verbose addLocalTarball adding from inside cache /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package.tgz
+16 verbose correctMkdir /Users/chienhunglin/.npm correctMkdir not in flight; initializing
+17 silly cache afterAdd botbuilder-linebot-connector@1.0.4
+18 verbose afterAdd /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package/package.json not in flight; writing
+19 verbose correctMkdir /Users/chienhunglin/.npm correctMkdir not in flight; initializing
+20 verbose afterAdd /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package/package.json written
+21 silly publish { name: 'botbuilder-linebot-connector',
+21 silly publish   version: '1.0.4',
+21 silly publish   description: 'Microsoft Bot Framework V3 connector for Line api',
+21 silly publish   main: 'index.js',
+21 silly publish   scripts: { test: 'node tests/example.js' },
+21 silly publish   repository:
+21 silly publish    { type: 'git',
+21 silly publish      url: 'git+https://github.com/Wolke/botbuilder-line-connector.git' },
+21 silly publish   keywords: [ 'linebot', 'botbuilder', 'connector' ],
+21 silly publish   author: { name: 'wolke' },
+21 silly publish   license: 'MIT',
+21 silly publish   bugs: { url: 'https://github.com/Wolke/botbuilder-linebot-connector/issues' },
+21 silly publish   homepage: 'https://github.com/Wolke/botbuilder-linebot-connector',
+21 silly publish   dependencies:
+21 silly publish    { express: '^4.14.0',
+21 silly publish      'body-parser': '^1.15.2',
+21 silly publish      botbuilder: '^3.4.4',
+21 silly publish      crypto: '^0.0.3',
+21 silly publish      lodash: '^4.15.0',
+21 silly publish      'node-fetch': '^1.6.3',
+21 silly publish      parse: '^1.9.2',
+21 silly publish      'parse-server': '^2.2.25' },
+21 silly publish   devDependencies: { '@types/body-parser': '^0.0.33', '@types/parse': '^1.2.32' },
+21 silly publish   readme: '# botbuilder-linebot-connector\n\n  [![NPM Version][npm-image]][npm-url]\n  [![NPM Downloads][downloads-image]][downloads-url]\n  [![NPM Dependencies][dependencies-image]][dependencies-url]\n  [![Build][travis-image]][travis-url]\n\nLINE Messaging API for Node.js\n\n# About LINE Messaging API\n\nPlease refer to the official API documents for details.\n- Developer Documents - https://developers.line.me/messaging-api/overview\n- API Reference - https://devdocs.line.me/en/#messaging-api\n\n# Installation\n\n```bash\n$ npm install botbuilder-linebot-connector --save\n```\n\n\n#usage\n\n```bash\nimport { ParseServer } from \'parse-server\';\nimport Parse = require(\'parse/node\');\nimport * as express from \'express\';\nimport * as builder from \'botbuilder\';\nvar LineConnector = require( "botbuilder-linebot-connector");\n\nvar lineConnector = new LineConnector.LineConnector({\n    channelId: "1489577XXX",\n    channelSecret: "1752cff54cf3db3a9f4a4bdd6165aXXX",\n    channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilXXX"\n});\nvar bot = new builder.UniversalBot(lineConnector);\n\nbot.dialog(\'/\', [\n    function (session) {\n        // Prompt the user to select their preferred locale\n        session.send("hello world");\n    }   \n]);\n\nlet api = new ParseServer({\n    databaseURI: \'mongodb://localhost:27017/linebotconnector\', // Connection string for your MongoDB database\n    appId: \'myAppId_linebotconnector\',\n    masterKey: \'myMasterKeylinebotconnector\', // Keep this key secret!\n    javascriptKey: \'javascriptKey_bot\',\n\n    fileKey: \'optionalFileKey_pet\',\n    serverURL: \'http://localhost:1337/parse\' // Don\'t forget to change to https if needed\n});\n\n\nvar app = express();\napp.use(\'/parse\', api);\napp.listen(1337, function () {\n    console.log(\'parse-server-example running on port 1337.\');\n});\n\nParse.initialize("myAppId_linebotconnector", "javascriptKey_bot");\n//you can use different bot\napp.use(\'/linebot\', lineConnector.listen());\n\napp.get(\'*\', function (req, res) {\n    res.send(200, \'Hello Tarot Bot\');\n});\napp.listen(process.env.port || 9090, function () {\n    console.log(\'server is running.\');\n});\n```\n\ncommand line:\nngrok http 9090\n\nline console\nhttps://xxx.xxx.xxx/\n\ndone',
+21 silly publish   readmeFilename: 'README.md',
+21 silly publish   gitHead: '8a2dd6a3794b4b92520eb495a65fc6f6977dadc2',
+21 silly publish   _id: 'botbuilder-linebot-connector@1.0.4',
+21 silly publish   _shasum: 'a62b616efadcd7fa45767aa24faabbc667ae2587',
+21 silly publish   _from: '.' }
+22 verbose getPublishConfig undefined
+23 silly mapToRegistry name botbuilder-linebot-connector
+24 silly mapToRegistry using default registry
+25 silly mapToRegistry registry https://registry.npmjs.org/
+26 silly mapToRegistry data Result {
+26 silly mapToRegistry   raw: 'botbuilder-linebot-connector',
+26 silly mapToRegistry   scope: null,
+26 silly mapToRegistry   escapedName: 'botbuilder-linebot-connector',
+26 silly mapToRegistry   name: 'botbuilder-linebot-connector',
+26 silly mapToRegistry   rawSpec: '',
+26 silly mapToRegistry   spec: 'latest',
+26 silly mapToRegistry   type: 'tag' }
+27 silly mapToRegistry uri https://registry.npmjs.org/botbuilder-linebot-connector
+28 verbose publish registryBase https://registry.npmjs.org/
+29 silly publish uploading /Users/chienhunglin/.npm/botbuilder-linebot-connector/1.0.4/package.tgz
+30 verbose request uri https://registry.npmjs.org/botbuilder-linebot-connector
+31 verbose request sending authorization for write operation
+32 info attempt registry request try #1 at 12:29:40
+33 verbose request using bearer token for auth
+34 verbose request id 0458f227f1f68794
+35 http request PUT https://registry.npmjs.org/botbuilder-linebot-connector
+36 http 403 https://registry.npmjs.org/botbuilder-linebot-connector
+37 verbose headers { 'content-type': 'application/json',
+37 verbose headers   'cache-control': 'max-age=300',
+37 verbose headers   'content-length': '95',
+37 verbose headers   'accept-ranges': 'bytes',
+37 verbose headers   date: 'Tue, 06 Dec 2016 04:29:42 GMT',
+37 verbose headers   via: '1.1 varnish',
+37 verbose headers   connection: 'keep-alive',
+37 verbose headers   'x-served-by': 'cache-itm7425-ITM',
+37 verbose headers   'x-cache': 'MISS',
+37 verbose headers   'x-cache-hits': '0',
+37 verbose headers   'x-timer': 'S1480998581.545404,VS0,VE682',
+37 verbose headers   vary: 'Accept-Encoding' }
+38 verbose request invalidating /Users/chienhunglin/.npm/registry.npmjs.org/botbuilder-linebot-connector on PUT
+39 error publish Failed PUT 403
+40 verbose stack Error: "You cannot publish over the previously published version 1.0.4." : botbuilder-linebot-connector
+40 verbose stack     at makeError (/Users/chienhunglin/.nvm/versions/node/v6.7.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+40 verbose stack     at CachingRegistryClient.<anonymous> (/Users/chienhunglin/.nvm/versions/node/v6.7.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+40 verbose stack     at Request._callback (/Users/chienhunglin/.nvm/versions/node/v6.7.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+40 verbose stack     at Request.self.callback (/Users/chienhunglin/.nvm/versions/node/v6.7.0/lib/node_modules/npm/node_modules/request/request.js:200:22)
+40 verbose stack     at emitTwo (events.js:106:13)
+40 verbose stack     at Request.emit (events.js:191:7)
+40 verbose stack     at Request.<anonymous> (/Users/chienhunglin/.nvm/versions/node/v6.7.0/lib/node_modules/npm/node_modules/request/request.js:1067:10)
+40 verbose stack     at emitOne (events.js:101:20)
+40 verbose stack     at Request.emit (events.js:188:7)
+40 verbose stack     at IncomingMessage.<anonymous> (/Users/chienhunglin/.nvm/versions/node/v6.7.0/lib/node_modules/npm/node_modules/request/request.js:988:12)
+41 verbose statusCode 403
+42 verbose pkgid botbuilder-linebot-connector
+43 verbose cwd /Users/chienhunglin/Dropbox/chatbot/botbuilder-linebot-connector
+44 error Darwin 16.1.0
+45 error argv "/Users/chienhunglin/.nvm/versions/node/v6.7.0/bin/node" "/Users/chienhunglin/.nvm/versions/node/v6.7.0/bin/npm" "publish"
+46 error node v6.7.0
+47 error npm  v3.10.3
+48 error code E403
+49 error "You cannot publish over the previously published version 1.0.4." : botbuilder-linebot-connector
+50 error If you need help, you may report this error at:
+50 error     <https://github.com/npm/npm/issues>
+51 verbose exit [ 1, true ]
