@@ -11,13 +11,13 @@ export var lineConnector = new LineConnector({
 });
 
 
-export var bot = new builder.UniversalBot(lineConnector, 
-{
-    localizerSettings: {
-        botLocalePath: __dirname + "./../locale",
-        defaultLocale: "zh_Hans"
+export var bot = new builder.UniversalBot(lineConnector,
+    {
+        localizerSettings: {
+            botLocalePath: __dirname + "./../locale",
+            defaultLocale: "zh_Hans"
+        }
     }
-}
 );
 
 
@@ -27,31 +27,41 @@ let getText = (s, i) => { return s.localizer.gettext(s.preferredLocale(), i) };
 
 bot.dialog('/', [
     function (s) {
-        // Prompt the user to select their preferred locale
-        // builder.Prompts.choice(session, "locale_prompt", 'English|Español|Italiano|中文');
-        let a = new builder.CardAction().title(getText(s,"agree")).type("message").value(getText(s,"agree"));
-            
-        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "begin")).text(getText(s, "me") + getText(s, "begin")).buttons([a]);
-        let m = new builder.Message().text("me").addAttachment(c);
-        s.send("hello");
-        s.send("great");
-        s.send("me");
-        // s.endDialog("end");
-        
-        builder.Prompts.choice(s, m, getText(s,"agree"))
-    }
-    ,
-    function (s, r) {
-        let s1 = getText(s,"funny");
-        let af = new builder.CardAction().title(s1).type("message").value(s1);
-        let s2 = getText(s,"lame");
-        let al = new builder.CardAction().title(s2).type("message").value(s2);
-        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af,al]);
-        let m = new builder.Message().text("me").addAttachment(c);
-        builder.Prompts.choice(s, m, [getText(s,"funny"),getText(s,"lame")])
+        if (s.userData.agree) {
+            s.send("me");
+        } else {
+            let a = new builder.CardAction().title(getText(s, "agree")).type("message").value(getText(s, "agree"));
+            let c = new builder.HeroCard().title(getText(s, "law")).subtitle(getText(s, "law")).text(getText(s, "law")).buttons([a]);
+            let m = new builder.Message().text("me").addAttachment(c);
+            s.send("me");
+            s.send("begin");
+            builder.Prompts.choice(s, m, getText(s, "agree"))
+        }
+
+
     },
-    (s,r)=>{
-        s.endDialog("end");
+    (s) => {
+        s.userData.agree = true;
+        s.beginDialog("/joke");
     }
 ]);
+
+bot.dialog("/joke", [
+
+    function (s, r) {
+        //route /joke
+
+        let s1 = getText(s, "funny");
+        let af = new builder.CardAction().title(s1).type("message").value(s1);
+        let s2 = getText(s, "lame");
+        let al = new builder.CardAction().title(s2).type("message").value(s2);
+        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af, al]);
+        let m = new builder.Message().text("me").addAttachment(c);
+        builder.Prompts.choice(s, m, [getText(s, "funny"), getText(s, "lame")])
+    },
+    (s, r) => {
+
+        s.endDialog("end");
+    }
+])
 

@@ -15,18 +15,26 @@ exports.bot = new builder.UniversalBot(exports.lineConnector, {
 var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), i); };
 exports.bot.dialog('/', [
     function (s) {
-        // Prompt the user to select their preferred locale
-        // builder.Prompts.choice(session, "locale_prompt", 'English|Español|Italiano|中文');
-        var a = new builder.CardAction().title(getText(s, "agree")).type("message").value(getText(s, "agree"));
-        var c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "begin")).text(getText(s, "me") + getText(s, "begin")).buttons([a]);
-        var m = new builder.Message().text("me").addAttachment(c);
-        s.send("hello");
-        s.send("great");
-        s.send("me");
-        // s.endDialog("end");
-        builder.Prompts.choice(s, m, getText(s, "agree"));
+        if (s.userData.agree) {
+            s.send("me");
+        }
+        else {
+            var a = new builder.CardAction().title(getText(s, "agree")).type("message").value(getText(s, "agree"));
+            var c = new builder.HeroCard().title(getText(s, "law")).subtitle(getText(s, "law")).text(getText(s, "law")).buttons([a]);
+            var m = new builder.Message().text("me").addAttachment(c);
+            s.send("me");
+            s.send("begin");
+            builder.Prompts.choice(s, m, getText(s, "agree"));
+        }
     },
+    function (s) {
+        s.userData.agree = true;
+        s.beginDialog("/joke");
+    }
+]);
+exports.bot.dialog("/joke", [
     function (s, r) {
+        //route /joke
         var s1 = getText(s, "funny");
         var af = new builder.CardAction().title(s1).type("message").value(s1);
         var s2 = getText(s, "lame");
