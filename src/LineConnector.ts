@@ -3,6 +3,7 @@
 import * as botbuilder from "botbuilder";
 import bodyParser = require("body-parser");
 import Parse = require('parse/node');
+import { EventEmitter } from 'events';
 
 // import linebot = require("linebot");
 const fetch = require('node-fetch');
@@ -49,6 +50,7 @@ export class LineConnector extends botbuilder.ChatConnector {
             return;
         }
         body.events.forEach(function (msg) {
+            // console.log("msg",msg)
             try {
                 let mid = "";
                 if (msg.source.type === "user") {
@@ -80,10 +82,17 @@ export class LineConnector extends botbuilder.ChatConnector {
                         useAuth: msg.replyToken
 
                     },
-                    source: msg.source.userId,
+                    source: mid,
                     text: msg.message.text,
                     res: res,
                 };
+                console.log("msg.message.type", msg.message.type)
+                // console.log("msg",msg )
+
+
+                if (msg.message.type !== "text") {
+                    m.text = msg.message.type;
+                }
 
                 msg = m;
 
@@ -150,51 +159,65 @@ export class LineConnector extends botbuilder.ChatConnector {
             return res.json();
         });
     }
+    // sendProcess:Promise<any>;
+
+    sendProcess = null;
+
 
     send(messages, done) {
+        //new EventEmitter wait for call process;
+        console.log("send");
         var _this = this;
+        let P = (a: string) => {
+            let auth = a;
+            let ts = [];
+            let e = new EventEmitter();
 
+            setTimeout(() => {
+                e.emit("done");
+            }, 100);
+
+            e.on("add", (t) => {
+                console.log("add", t)
+
+                ts.push(t);
+            })
+            e.on("done", () => {
+                console.log("done", auth, ts)
+                _this.reply(auth, ts);
+                _this.sendProcess = null;
+            })
+            return e;
+        }
 
         messages.map((msg) => {
             // console.log("msg", msg)
+            if (_this.sendProcess === null) {
+                _this.sendProcess = P(msg.address.useAuth);
+            }
             if (msg.attachments !== undefined) {
-                _this.renderAttachment(msg);
+                // _this.renderAttachment(msg);
+                let p: Promise<any> = _this.getRenderTemplate(msg);
+                p.then((t) => {
+                    console.log("t", t);
+                    _this.sendProcess.emit("add", t)
 
+                });
 
             } else {
-                _this.reply(msg.address.useAuth, msg.text);
-
+                _this.sendProcess.emit("add", { type: 'text', text: msg.text });
+                // _this.reply(msg.address.useAuth, msg.text);
+                // p.emit("add",_this.getRenderTemplate(msg.text))
             }
         })
-
-        //    this.event.reply(messages);
     }
-    // startConversation(address, cb) {
-    //     console.log("startConversation",address)
-    //     function clone(obj) {
-    //         var cpy = {};
-    //         if (obj) {
-    //             for (var key in obj) {
-    //                 if (obj.hasOwnProperty(key)) {
-    //                     cpy[key] = obj[key];
-    //                 }
-    //             }
-    //         }
-    //         return cpy;
-    //     }
-
-    //     var adr: any = clone(address);
-    //     adr.conversation = { id: 'Convo3' };
-    //     cb(null, adr);
-    // }
 
     getData(context, callback) {
         var _this = this;
         //  console.log("getData  context.address.channelId", context.address.channelId);
 
-        // callback(null, null);
         let query = new Parse.Query(DATA);
-        query.equalTo("channelId", context.address.channelId + "/" + this.botId ).first().then((obj: Parse.Object) => {
+        query.equalTo("channelId", context.address.channelId + "/" + this.botId).first().then((obj: Parse.Object) => {
             if (obj !== undefined) {
                 _this.obj = obj;
                 var d: string = obj.get("data");
@@ -208,13 +231,16 @@ export class LineConnector extends botbuilder.ChatConnector {
         })
     }
     saveData(context, data, callback) {
+        // console.log("save",data)
+
+        // console.log("save",data.privateConversationData["BotBuilder.Data.SessionState"].callstack)
         let obj = new DATA();
 
         if (this.obj) {
             obj = this.obj;
         }
 
-        obj.set("channelId", context.address.channelId + "/" + this.botId )
+        obj.set("channelId", context.address.channelId + "/" + this.botId)
         obj.set("data", JSON.stringify(data));
         obj.save().then((err, data) => {
             // console.log("saveData 2", err, data)
@@ -222,99 +248,115 @@ export class LineConnector extends botbuilder.ChatConnector {
         });
     }
 
-    renderAttachment(msg) {
-        var _this = this;
-        // console.log("msg", msg);
-        let l = msg.attachments.length;
-        if (l === 1) {
-            msg.attachments.map((a) => {
-                switch (a.contentType) {
-                    case 'application/vnd.microsoft.card.hero':
-                    case 'application/vnd.microsoft.card.thumbnail':
-                        var tc = a.content;
-                        // console.log("tc", tc);
-                        if (tc.title === undefined) {
-                            if (tc.images.length > 0) {
-                                let r = {
-                                    type: 'image',
-                                    originalContentUrl: tc.images[0].url,
-                                    previewImageUrl: tc.images[0].url
-                                }
-                                _this.reply(msg.address.useAuth, r);
-                                return;
-                            }
-                            
+    getRenderTemplate(msg): Promise<any> {
 
-                        }
-                        let r: any = {
-                            type: 'template',
-                            altText: tc.text,
-                            template: {
-                                type: "buttons",
+        var _this = this;
+
+        return new Promise((res, rej) => {
+
+            // console.log("msg", msg);
+            let l = msg.attachments.length;
+            if (l === 1) {
+
+                msg.attachments.map((a) => {
+                    switch (a.contentType) {
+                        case 'application/vnd.microsoft.card.hero':
+                        case 'application/vnd.microsoft.card.thumbnail':
+
+                            var tc = a.content;
+                            // console.log("tc", tc);
+                            if (tc.title === undefined) {
+                                if (tc.images.length > 0) {
+                                    let r = {
+                                        type: 'image',
+                                        originalContentUrl: tc.images[0].url,
+                                        previewImageUrl: tc.images[0].url
+                                    }
+                                    // _this.reply(msg.address.useAuth, r);
+                                    // return r;
+                                    res(r);
+                                }
+                            }
+                            let r: any = {
+                                type: 'template',
+                                altText: tc.text,
+                                template: {
+                                    type: "buttons",
+                                    title: tc.title,
+                                    text: tc.subtitle,
+                                    actions: []
+                                }
+                            };
+                            if (tc.buttons.length <= 2 && tc.images === undefined) {
+                                r.template.type = "confirm";
+                            }
+
+                            let actions;
+                            tc.buttons.map((b) => {
+                                let bn = {
+                                    type: "message",
+                                    label: b.title,
+                                    text: b.value
+                                }
+                                r.template.actions.push(bn)
+                            });
+
+                            if (tc.images !== undefined) {
+                                r.template.thumbnailImageUrl = tc.images[0].url;
+                            }
+                            console.log("r0", r)
+
+
+                            // _this.reply(msg.address.useAuth, r);
+                            // return r;
+                            res(r);
+                    }
+
+                })
+            } else {
+                let r: any = {
+                    type: 'template',
+                    altText: msg.text,
+                    template: {
+                        type: "carousel",
+                        columns: []
+
+                    }
+                };
+                msg.attachments.map((a) => {
+                    switch (a.contentType) {
+                        case 'application/vnd.microsoft.card.hero':
+                        case 'application/vnd.microsoft.card.thumbnail':
+                            var tc = a.content;
+                            let c: any = {
                                 title: tc.title,
                                 text: tc.subtitle,
                                 actions: []
                             }
-                        };
-                        let actions;
-                        tc.buttons.map((b) => {
-                            let bn = {
-                                type: "message",
-                                label: b.title,
-                                text: b.value
+
+                            let actions;
+                            tc.buttons.map((b) => {
+                                let bn = {
+                                    type: "message",
+                                    label: b.title,
+                                    text: b.value
+                                }
+                                c.actions.push(bn)
+                            });
+                            if (tc.images !== undefined) {
+                                c.thumbnailImageUrl = tc.images[0].url;
                             }
-                            r.template.actions.push(bn)
-                        });
-                        if (tc.images !== undefined) {
-                            r.template.thumbnailImageUrl = tc.images[0].url;
-                        }
-                        _this.reply(msg.address.useAuth, r);
-                        return;
-                }
+                            r.template.columns.push(c);
+                    }
 
-            })
-        } else {
-            let r: any = {
-                type: 'template',
-                altText: msg.text,
-                template: {
-                    type: "carousel",
-                    columns: []
+                })
+                // console.log("r", r)
+                // _this.reply(msg.address.useAuth, r);
+                // return r;
+                res(r);
 
-                }
-            };
-            msg.attachments.map((a) => {
-                switch (a.contentType) {
-                    case 'application/vnd.microsoft.card.hero':
-                    case 'application/vnd.microsoft.card.thumbnail':
-                        var tc = a.content;
-                        let c: any = {
-                            title: tc.title,
-                            text: tc.subtitle,
-                            actions: []
-                        }
-
-                        let actions;
-                        tc.buttons.map((b) => {
-                            let bn = {
-                                type: "message",
-                                label: b.title,
-                                text: b.value
-                            }
-                            c.actions.push(bn)
-                        });
-                        if (tc.images !== undefined) {
-                            c.thumbnailImageUrl = tc.images[0].url;
-                        }
-                        r.template.columns.push(c);
-                }
-
-            })
-            // console.log("r", r)
-            _this.reply(msg.address.useAuth, r);
-
-
-        }
+            }
+        });
 
 
         // if(msg.attachments)

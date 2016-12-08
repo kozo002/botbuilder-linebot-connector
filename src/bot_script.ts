@@ -5,51 +5,53 @@ import * as builder from 'botbuilder';
 import { Message, CardImage, UniversalBot, HeroCard, CardAction, Prompts, ConsoleConnector } from 'botbuilder';
 
 export var lineConnector = new LineConnector({
-    channelId: "1489577982",
-    channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
-    channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
+    channelId: "1490090330",
+    channelSecret: "b07f4fdc3a32d56c277b4b4b09d0876c",
+    channelAccessToken: "EUupZ8DuplDAVoDH32DCaV+u6TTpq7uwQKTnFnT3zQaxpIUjUJomJ5CtGvJf3Z/pvWtVg+YhftWWQDfXIrSzgNAUuKeflOaezW2XRUgI61HlVrad7OP8TgXFnzFydJ6g8O3BsHmSYYwY7wqbczw57AdB04t89/1O/w1cDnyilFU="
 });
 
 
-export var bot = new builder.UniversalBot(lineConnector, {
+export var bot = new builder.UniversalBot(lineConnector, 
+{
     localizerSettings: {
         botLocalePath: __dirname + "./../locale",
-        defaultLocale: "en"
+        defaultLocale: "zh_Hans"
     }
-});
+}
+);
+
+
+let getText = (s, i) => { return s.localizer.gettext(s.preferredLocale(), i) };
+
 
 
 bot.dialog('/', [
-    function (session) {
+    function (s) {
         // Prompt the user to select their preferred locale
-        builder.Prompts.choice(session, "locale_prompt", 'English|Español|Italiano|中文');
+        // builder.Prompts.choice(session, "locale_prompt", 'English|Español|Italiano|中文');
+        let a = new builder.CardAction().title(getText(s,"agree")).type("message").value(getText(s,"agree"));
+            
+        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "begin")).text(getText(s, "me") + getText(s, "begin")).buttons([a]);
+        let m = new builder.Message().text("me").addAttachment(c);
+        s.send("hello");
+        s.send("great");
+        s.send("me");
+        // s.endDialog("end");
+        
+        builder.Prompts.choice(s, m, getText(s,"agree"))
+    }
+    ,
+    function (s, r) {
+        let s1 = getText(s,"funny");
+        let af = new builder.CardAction().title(s1).type("message").value(s1);
+        let s2 = getText(s,"lame");
+        let al = new builder.CardAction().title(s2).type("message").value(s2);
+        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af,al]);
+        let m = new builder.Message().text("me").addAttachment(c);
+        builder.Prompts.choice(s, m, [getText(s,"funny"),getText(s,"lame")])
     },
-    function (session, results) {
-        // Update preferred locale
-        var locale;
-        switch (results.response.entity) {
-            case 'English':
-                locale = 'en';
-                break;
-            case 'Español':
-                locale = 'es';
-                break;
-            case 'Italiano':
-                locale = 'it';
-                break;
-            case '中文':
-                locale = 'zh-Hans';
-                break;
-        }
-        session.preferredLocale(locale, function (err) {
-            if (!err) {
-                // Locale files loaded
-                session.endDialog('locale_updated');
-            } else {
-                // Problem loading the selected locale
-                session.error(err);
-            }
-        });
+    (s,r)=>{
+        s.endDialog("end");
     }
 ]);
 

@@ -8,6 +8,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var botbuilder = require("botbuilder");
 var bodyParser = require("body-parser");
 var Parse = require('parse/node');
+var events_1 = require('events');
 // import linebot = require("linebot");
 var fetch = require('node-fetch');
 var crypto = require('crypto');
@@ -17,6 +18,8 @@ var LineConnector = (function (_super) {
     __extends(LineConnector, _super);
     function LineConnector(options) {
         _super.call(this);
+        // sendProcess:Promise<any>;
+        this.sendProcess = null;
         this.options = options || {};
         this.options.channelId = options.channelId || '';
         this.options.channelSecret = options.channelSecret || '';
@@ -44,6 +47,7 @@ var LineConnector = (function (_super) {
             return;
         }
         body.events.forEach(function (msg) {
+            // console.log("msg",msg)
             try {
                 var mid = "";
                 if (msg.source.type === "user") {
@@ -74,10 +78,15 @@ var LineConnector = (function (_super) {
                         serviceUrl: _this.endpoint,
                         useAuth: msg.replyToken
                     },
-                    source: msg.source.userId,
+                    source: mid,
                     text: msg.message.text,
                     res: res,
                 };
+                console.log("msg.message.type", msg.message.type);
+                // console.log("msg",msg )
+                if (msg.message.type !== "text") {
+                    m.text = msg.message.type;
+                }
                 msg = m;
                 _this.handler([msg]);
             }
@@ -140,39 +149,48 @@ var LineConnector = (function (_super) {
         });
     };
     LineConnector.prototype.send = function (messages, done) {
+        //new EventEmitter wait for call process;
+        console.log("send");
         var _this = this;
+        var P = function (a) {
+            var auth = a;
+            var ts = [];
+            var e = new events_1.EventEmitter();
+            setTimeout(function () {
+                e.emit("done");
+            }, 100);
+            e.on("add", function (t) {
+                console.log("add", t);
+                ts.push(t);
+            });
+            e.on("done", function () {
+                console.log("done", auth, ts);
+                _this.reply(auth, ts);
+                _this.sendProcess = null;
+            });
+            return e;
+        };
         messages.map(function (msg) {
             // console.log("msg", msg)
+            if (_this.sendProcess === null) {
+                _this.sendProcess = P(msg.address.useAuth);
+            }
             if (msg.attachments !== undefined) {
-                _this.renderAttachment(msg);
+                // _this.renderAttachment(msg);
+                var p = _this.getRenderTemplate(msg);
+                p.then(function (t) {
+                    console.log("t", t);
+                    _this.sendProcess.emit("add", t);
+                });
             }
             else {
-                _this.reply(msg.address.useAuth, msg.text);
+                _this.sendProcess.emit("add", { type: 'text', text: msg.text });
             }
         });
-        //    this.event.reply(messages);
     };
-    // startConversation(address, cb) {
-    //     console.log("startConversation",address)
-    //     function clone(obj) {
-    //         var cpy = {};
-    //         if (obj) {
-    //             for (var key in obj) {
-    //                 if (obj.hasOwnProperty(key)) {
-    //                     cpy[key] = obj[key];
-    //                 }
-    //             }
-    //         }
-    //         return cpy;
-    //     }
-    //     var adr: any = clone(address);
-    //     adr.conversation = { id: 'Convo3' };
-    //     cb(null, adr);
-    // }
     LineConnector.prototype.getData = function (context, callback) {
         var _this = this;
         //  console.log("getData  context.address.channelId", context.address.channelId);
-        // callback(null, null);
         var query = new Parse.Query(DATA);
         query.equalTo("channelId", context.address.channelId + "/" + this.botId).first().then(function (obj) {
             if (obj !== undefined) {
@@ -187,6 +205,8 @@ var LineConnector = (function (_super) {
         });
     };
     LineConnector.prototype.saveData = function (context, data, callback) {
+        // console.log("save",data)
+        // console.log("save",data.privateConversationData["BotBuilder.Data.SessionState"].callstack)
         var obj = new DATA();
         if (this.obj) {
             obj = this.obj;
@@ -198,92 +218,102 @@ var LineConnector = (function (_super) {
             callback(null);
         });
     };
-    LineConnector.prototype.renderAttachment = function (msg) {
+    LineConnector.prototype.getRenderTemplate = function (msg) {
         var _this = this;
-        // console.log("msg", msg);
-        var l = msg.attachments.length;
-        if (l === 1) {
-            msg.attachments.map(function (a) {
-                switch (a.contentType) {
-                    case 'application/vnd.microsoft.card.hero':
-                    case 'application/vnd.microsoft.card.thumbnail':
-                        var tc = a.content;
-                        // console.log("tc", tc);
-                        if (tc.title === undefined) {
-                            if (tc.images.length > 0) {
-                                var r_1 = {
-                                    type: 'image',
-                                    originalContentUrl: tc.images[0].url,
-                                    previewImageUrl: tc.images[0].url
-                                };
-                                _this.reply(msg.address.useAuth, r_1);
-                                return;
+        return new Promise(function (res, rej) {
+            // console.log("msg", msg);
+            var l = msg.attachments.length;
+            if (l === 1) {
+                msg.attachments.map(function (a) {
+                    switch (a.contentType) {
+                        case 'application/vnd.microsoft.card.hero':
+                        case 'application/vnd.microsoft.card.thumbnail':
+                            var tc = a.content;
+                            // console.log("tc", tc);
+                            if (tc.title === undefined) {
+                                if (tc.images.length > 0) {
+                                    var r_1 = {
+                                        type: 'image',
+                                        originalContentUrl: tc.images[0].url,
+                                        previewImageUrl: tc.images[0].url
+                                    };
+                                    // _this.reply(msg.address.useAuth, r);
+                                    // return r;
+                                    res(r_1);
+                                }
                             }
-                        }
-                        var r_2 = {
-                            type: 'template',
-                            altText: tc.text,
-                            template: {
-                                type: "buttons",
+                            var r_2 = {
+                                type: 'template',
+                                altText: tc.text,
+                                template: {
+                                    type: "buttons",
+                                    title: tc.title,
+                                    text: tc.subtitle,
+                                    actions: []
+                                }
+                            };
+                            if (tc.buttons.length <= 2 && tc.images === undefined) {
+                                r_2.template.type = "confirm";
+                            }
+                            var actions = void 0;
+                            tc.buttons.map(function (b) {
+                                var bn = {
+                                    type: "message",
+                                    label: b.title,
+                                    text: b.value
+                                };
+                                r_2.template.actions.push(bn);
+                            });
+                            if (tc.images !== undefined) {
+                                r_2.template.thumbnailImageUrl = tc.images[0].url;
+                            }
+                            console.log("r0", r_2);
+                            // _this.reply(msg.address.useAuth, r);
+                            // return r;
+                            res(r_2);
+                    }
+                });
+            }
+            else {
+                var r_3 = {
+                    type: 'template',
+                    altText: msg.text,
+                    template: {
+                        type: "carousel",
+                        columns: []
+                    }
+                };
+                msg.attachments.map(function (a) {
+                    switch (a.contentType) {
+                        case 'application/vnd.microsoft.card.hero':
+                        case 'application/vnd.microsoft.card.thumbnail':
+                            var tc = a.content;
+                            var c_1 = {
                                 title: tc.title,
                                 text: tc.subtitle,
                                 actions: []
+                            };
+                            var actions = void 0;
+                            tc.buttons.map(function (b) {
+                                var bn = {
+                                    type: "message",
+                                    label: b.title,
+                                    text: b.value
+                                };
+                                c_1.actions.push(bn);
+                            });
+                            if (tc.images !== undefined) {
+                                c_1.thumbnailImageUrl = tc.images[0].url;
                             }
-                        };
-                        var actions = void 0;
-                        tc.buttons.map(function (b) {
-                            var bn = {
-                                type: "message",
-                                label: b.title,
-                                text: b.value
-                            };
-                            r_2.template.actions.push(bn);
-                        });
-                        if (tc.images !== undefined) {
-                            r_2.template.thumbnailImageUrl = tc.images[0].url;
-                        }
-                        _this.reply(msg.address.useAuth, r_2);
-                        return;
-                }
-            });
-        }
-        else {
-            var r_3 = {
-                type: 'template',
-                altText: msg.text,
-                template: {
-                    type: "carousel",
-                    columns: []
-                }
-            };
-            msg.attachments.map(function (a) {
-                switch (a.contentType) {
-                    case 'application/vnd.microsoft.card.hero':
-                    case 'application/vnd.microsoft.card.thumbnail':
-                        var tc = a.content;
-                        var c_1 = {
-                            title: tc.title,
-                            text: tc.subtitle,
-                            actions: []
-                        };
-                        var actions = void 0;
-                        tc.buttons.map(function (b) {
-                            var bn = {
-                                type: "message",
-                                label: b.title,
-                                text: b.value
-                            };
-                            c_1.actions.push(bn);
-                        });
-                        if (tc.images !== undefined) {
-                            c_1.thumbnailImageUrl = tc.images[0].url;
-                        }
-                        r_3.template.columns.push(c_1);
-                }
-            });
-            // console.log("r", r)
-            _this.reply(msg.address.useAuth, r_3);
-        }
+                            r_3.template.columns.push(c_1);
+                    }
+                });
+                // console.log("r", r)
+                // _this.reply(msg.address.useAuth, r);
+                // return r;
+                res(r_3);
+            }
+        });
         // if(msg.attachments)
         // this.reply()
     };

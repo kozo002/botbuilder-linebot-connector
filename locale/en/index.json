@@ -13,5 +13,13 @@
     "input_response": "You entered '%s'",
     "choice_response": "You chose '%s'",
     "time_response": "JSON for time entered: %s",
-    "demo_finished": ["That's the end of the demo.", "Thank you. That's the end."]
+    "demo_finished": ["That's the end of the demo.", "Thank you. That's the end."],
+    "me": "Hi: I am Mr.JOKE",
+    "begin": "Mr.JOKE love jokes and collect everyone's jokes, please tell me a variety of jokes!(Not limited to text, pictures, photo)",
+    "agree": "Agree! Give Me a Joke",
+    "funny": "Funny",
+    "lame": "Lame",
+    "provide": "provide joke",
+    "thx": "thank"
+
 }

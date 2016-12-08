@@ -25,7 +25,7 @@ Parse.initialize("myAppId_linebotconnector", "javascriptKey_bot");
 
 //you can use different bot
 app.use('/linebot0', b0.lineConnector.listen());
-app.use('/linebot1', b0.lineConnector.listen());
+// app.use('/linebot1', b0.lineConnector.listen());
 
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');
