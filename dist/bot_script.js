@@ -16,7 +16,8 @@ var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), 
 exports.bot.dialog('/', [
     function (s) {
         if (s.userData.agree) {
-            s.send("me");
+            // s.send("me");
+            s.beginDialog("/menu");
         }
         else {
             var a = new builder.CardAction().title(getText(s, "agree")).type("message").value(getText(s, "agree"));
@@ -33,6 +34,21 @@ exports.bot.dialog('/', [
     }
 ]);
 exports.bot.dialog("/joke", [
+    function (s, r) {
+        //route /joke
+        var s1 = getText(s, "funny");
+        var af = new builder.CardAction().title(s1).type("message").value(s1);
+        var s2 = getText(s, "lame");
+        var al = new builder.CardAction().title(s2).type("message").value(s2);
+        var c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af, al]);
+        var m = new builder.Message().text("me").addAttachment(c);
+        builder.Prompts.choice(s, m, [getText(s, "funny"), getText(s, "lame")]);
+    },
+    function (s, r) {
+        s.endDialog("end");
+    }
+]);
+exports.bot.dialog("/menu", [
     function (s, r) {
         //route /joke
         var s1 = getText(s, "funny");
