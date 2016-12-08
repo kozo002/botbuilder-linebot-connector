@@ -1,5 +1,5 @@
 
-import { LineConnector } from './LineConnector';
+import { LineConnector } from './../LineConnector';
 
 import * as builder from 'botbuilder';
 import { Message, CardImage, UniversalBot, HeroCard, CardAction, Prompts, ConsoleConnector } from 'botbuilder';
@@ -14,7 +14,7 @@ export var lineConnector = new LineConnector({
 export var bot = new builder.UniversalBot(lineConnector,
     {
         localizerSettings: {
-            botLocalePath: __dirname + "./../locale",
+            botLocalePath: __dirname + "./../../locale",
             defaultLocale: "zh_Hans"
         }
     }
@@ -55,11 +55,13 @@ bot.dialog("/joke", [
         let al = new builder.CardAction().title(s2).type("message").value(s2);
         let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af, al]);
         let m = new builder.Message().text("me").addAttachment(c);
-        builder.Prompts.choice(s, m, [getText(s, "funny"), getText(s, "lame")])
+        builder.Prompts.choice(s, m, [s1,s2])
     },
     (s, r) => {
+        console.log(r.response);
 
         s.endDialog("end");
+        
     }
 ])
 bot.dialog("/menu", [
@@ -67,17 +69,27 @@ bot.dialog("/menu", [
     function (s, r) {
         //route /joke
 
-        let s1 = getText(s, "funny");
+        let s1 = getText(s, "provide");
         let af = new builder.CardAction().title(s1).type("message").value(s1);
-        let s2 = getText(s, "lame");
-        let al = new builder.CardAction().title(s2).type("message").value(s2);
-        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af, al]);
+        let c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "me")).text(getText(s, "me")).buttons([af]);
         let m = new builder.Message().text("me").addAttachment(c);
-        builder.Prompts.choice(s, m, [getText(s, "funny"), getText(s, "lame")])
+        builder.Prompts.choice(s, m, [s1])
     },
     (s, r) => {
-
-        s.endDialog("end");
+        console.log("r",r.response.entity)
+        let s1 = getText(s, "provide");
+        
+        let e = r.response.entity;
+        
+        switch(e){
+            case s1:
+                // s.send("")
+                let p = getText(s, "provide_intro");
+                builder.Prompts.attachment(s,p);
+            break;
+        }
+        
+        // s.endDialog("end menu");
     }
 ])
 

@@ -1,6 +1,5 @@
 "use strict";
-var demobot = require('./bot/bot_script');
-var jokebot = require('./joke/bot_script');
+var demobot = require('./bot_script');
 var parse_server_1 = require('parse-server');
 var Parse = require('parse/node');
 var express = require('express');
@@ -20,7 +19,6 @@ app.listen(1337, function () {
 Parse.initialize("myAppId_linebotconnector", "javascriptKey_bot");
 //you can use different bot
 app.use('/linebot0', demobot.lineConnector.listen());
-app.use('/linebot1', jokebot.lineConnector.listen());
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');
 });

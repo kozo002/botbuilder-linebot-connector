@@ -86,7 +86,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                     text: msg.message.text,
                     res: res,
                 };
-                console.log("msg.message.type", msg.message.type)
+                // console.log("msg.message.type", msg.message.type)
                 // console.log("msg",msg )
 
 
@@ -166,7 +166,7 @@ export class LineConnector extends botbuilder.ChatConnector {
 
     send(messages, done) {
         //new EventEmitter wait for call process;
-        console.log("send");
+        // console.log("send");
         var _this = this;
         let P = (a: string) => {
             let auth = a;
@@ -178,12 +178,12 @@ export class LineConnector extends botbuilder.ChatConnector {
             }, 100);
 
             e.on("add", (t) => {
-                console.log("add", t)
+                // console.log("add", t)
 
                 ts.push(t);
             })
             e.on("done", () => {
-                console.log("done", auth, ts)
+                // console.log("done", auth, ts)
                 _this.reply(auth, ts);
                 _this.sendProcess = null;
             })
@@ -199,7 +199,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                 // _this.renderAttachment(msg);
                 let p: Promise<any> = _this.getRenderTemplate(msg);
                 p.then((t) => {
-                    console.log("t", t);
+                    // console.log("t", t);
                     _this.sendProcess.emit("add", t)
 
                 });
@@ -304,7 +304,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                             if (tc.images !== undefined) {
                                 r.template.thumbnailImageUrl = tc.images[0].url;
                             }
-                            console.log("r0", r)
+                            // console.log("r0", r)
 
 
                             // _this.reply(msg.address.useAuth, r);

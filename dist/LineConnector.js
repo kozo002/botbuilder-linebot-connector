@@ -82,7 +82,7 @@ var LineConnector = (function (_super) {
                     text: msg.message.text,
                     res: res,
                 };
-                console.log("msg.message.type", msg.message.type);
+                // console.log("msg.message.type", msg.message.type)
                 // console.log("msg",msg )
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
@@ -150,7 +150,7 @@ var LineConnector = (function (_super) {
     };
     LineConnector.prototype.send = function (messages, done) {
         //new EventEmitter wait for call process;
-        console.log("send");
+        // console.log("send");
         var _this = this;
         var P = function (a) {
             var auth = a;
@@ -160,11 +160,11 @@ var LineConnector = (function (_super) {
                 e.emit("done");
             }, 100);
             e.on("add", function (t) {
-                console.log("add", t);
+                // console.log("add", t)
                 ts.push(t);
             });
             e.on("done", function () {
-                console.log("done", auth, ts);
+                // console.log("done", auth, ts)
                 _this.reply(auth, ts);
                 _this.sendProcess = null;
             });
@@ -179,7 +179,7 @@ var LineConnector = (function (_super) {
                 // _this.renderAttachment(msg);
                 var p = _this.getRenderTemplate(msg);
                 p.then(function (t) {
-                    console.log("t", t);
+                    // console.log("t", t);
                     _this.sendProcess.emit("add", t);
                 });
             }
@@ -267,7 +267,7 @@ var LineConnector = (function (_super) {
                             if (tc.images !== undefined) {
                                 r_2.template.thumbnailImageUrl = tc.images[0].url;
                             }
-                            console.log("r0", r_2);
+                            // console.log("r0", r)
                             // _this.reply(msg.address.useAuth, r);
                             // return r;
                             res(r_2);
