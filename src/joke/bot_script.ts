@@ -147,14 +147,11 @@ bot.dialog("/provide", [
         switch (e) {
             case st:
                 s.beginDialog("/provide_text");
-                // builder.Prompts.text(s, "provide_text");
-
+      
                 break;
             case so:
                 s.beginDialog("/provide_other");
-                
-                // builder.Prompts.arguments(s, "provide_other");
-
+      
                 break;
         }
         
@@ -170,23 +167,25 @@ bot.dialog("/provide_text", [
         builder.Prompts.text(s, "provide_text");
     },
     (s, r) => {
+        console.log("provide",r);
+        let text:string = r.response;
+        s.send(text);
+        s.send("thx_you_provide")
 
-        s.send(new StickerMessage(1, 2))
         s.endDialog();
-    
+        s.beginDialog("/menu");
+
     }
 ])
 
 bot.dialog("/provide_other", [
     (s) => {
-        builder.Prompts.arguments(s, "provide_other");
+        builder.Prompts.attachment(s, "provide_other");
     },
     (s, r) => {
-
         s.send(new StickerMessage(1, 2));
         s.endDialog();
-
-    
+         s.beginDialog("/menu");
     }
 ])
 
@@ -198,8 +197,4 @@ bot.dialog("/contact", [
         s.endDialog("contact_context")
     },
 ])
-
-
-
-
 

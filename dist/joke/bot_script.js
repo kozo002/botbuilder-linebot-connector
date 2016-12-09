@@ -124,11 +124,9 @@ exports.bot.dialog("/provide", [
         switch (e) {
             case st:
                 s.beginDialog("/provide_text");
-                // builder.Prompts.text(s, "provide_text");
                 break;
             case so:
                 s.beginDialog("/provide_other");
-                // builder.Prompts.arguments(s, "provide_other");
                 break;
         }
         //1.get data;
@@ -142,17 +140,22 @@ exports.bot.dialog("/provide_text", [
         builder.Prompts.text(s, "provide_text");
     },
     function (s, r) {
-        s.send(new LineConnector_1.StickerMessage(1, 2));
+        console.log("provide", r);
+        var text = r.response;
+        s.send(text);
+        s.send("thx_you_provide");
         s.endDialog();
+        s.beginDialog("/menu");
     }
 ]);
 exports.bot.dialog("/provide_other", [
     function (s) {
-        builder.Prompts.arguments(s, "provide_other");
+        builder.Prompts.attachment(s, "provide_other");
     },
     function (s, r) {
         s.send(new LineConnector_1.StickerMessage(1, 2));
         s.endDialog();
+        s.beginDialog("/menu");
     }
 ]);
 exports.bot.dialog("/contact", [
