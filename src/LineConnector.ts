@@ -12,6 +12,16 @@ var url = require('url');
 
 var DATA = Parse.Object.extend("DATA");
 
+export class StickerMessage extends botbuilder.Message {
+    constructor(pId:number, sId:number) {
+        super();
+        this.text("sticker");
+        this.addEntity({
+            packageId : pId.toString(),
+            stickerId : sId.toString()
+        })
+    }
+}
 export class LineConnector extends botbuilder.ChatConnector {
     botId;
     options;
@@ -128,14 +138,19 @@ export class LineConnector extends botbuilder.ChatConnector {
     };
 
     static createMessages(message) {
+        // console.log(message)
         if (typeof message === 'string') {
             return [{ type: 'text', text: message }];
         }
+
+
+
         if (Array.isArray(message)) {
             return message.map(function (m) {
                 if (typeof m === 'string') {
                     return { type: 'text', text: m };
                 }
+
                 return m;
             });
         }
@@ -201,13 +216,15 @@ export class LineConnector extends botbuilder.ChatConnector {
                 p.then((t) => {
                     // console.log("t", t);
                     _this.sendProcess.emit("add", t)
-
                 });
-
             } else {
-                _this.sendProcess.emit("add", { type: 'text', text: msg.text });
-                // _this.reply(msg.address.useAuth, msg.text);
-                // p.emit("add",_this.getRenderTemplate(msg.text))
+                // console.log("msg",msg)
+                if (msg.text === "sticker" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
+                } else{
+                    _this.sendProcess.emit("add", { type: 'text', text: msg.text });
+                
+                }
             }
         })
     }

@@ -14,6 +14,19 @@ var fetch = require('node-fetch');
 var crypto = require('crypto');
 var url = require('url');
 var DATA = Parse.Object.extend("DATA");
+var StickerMessage = (function (_super) {
+    __extends(StickerMessage, _super);
+    function StickerMessage(pId, sId) {
+        _super.call(this);
+        this.text("sticker");
+        this.addEntity({
+            packageId: pId.toString(),
+            stickerId: sId.toString()
+        });
+    }
+    return StickerMessage;
+}(botbuilder.Message));
+exports.StickerMessage = StickerMessage;
 var LineConnector = (function (_super) {
     __extends(LineConnector, _super);
     function LineConnector(options) {
@@ -120,6 +133,7 @@ var LineConnector = (function (_super) {
     };
     ;
     LineConnector.createMessages = function (message) {
+        // console.log(message)
         if (typeof message === 'string') {
             return [{ type: 'text', text: message }];
         }
@@ -184,7 +198,13 @@ var LineConnector = (function (_super) {
                 });
             }
             else {
-                _this.sendProcess.emit("add", { type: 'text', text: msg.text });
+                // console.log("msg",msg)
+                if (msg.text === "sticker" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
+                }
+                else {
+                    _this.sendProcess.emit("add", { type: 'text', text: msg.text });
+                }
             }
         });
     };

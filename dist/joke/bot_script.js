@@ -20,6 +20,7 @@ exports.bot.dialog('/', [
             s.beginDialog("/menu");
         }
         else {
+            s.userData.count_joke = 0;
             var a = new builder.CardAction().title(getText(s, "agree")).type("message").value(getText(s, "agree"));
             var c = new builder.HeroCard().title(getText(s, "law")).subtitle(getText(s, "law")).text(getText(s, "law")).buttons([a]);
             var m = new builder.Message().text("me").addAttachment(c);
@@ -36,39 +37,86 @@ exports.bot.dialog('/', [
 exports.bot.dialog("/joke", [
     function (s, r) {
         //route /joke
+        s.userData.count_joke++;
+        s.send("funny_joke");
         var s1 = getText(s, "funny");
         var af = new builder.CardAction().title(s1).type("message").value(s1);
         var s2 = getText(s, "lame");
         var al = new builder.CardAction().title(s2).type("message").value(s2);
-        var c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "joke")).text(getText(s, "joke")).buttons([af, al]);
-        var m = new builder.Message().text("me").addAttachment(c);
+        var c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
+        var m = new builder.Message().text("is_this_funny").addAttachment(c);
         builder.Prompts.choice(s, m, [s1, s2]);
     },
     function (s, r) {
-        console.log(r.response);
-        s.endDialog("end");
+        s.endDialog();
+        var sf = getText(s, "funny");
+        var sl = getText(s, "lame");
+        var e = r.response.entity;
+        switch (e) {
+            case sf:
+                var m = new LineConnector_1.StickerMessage(2, 18);
+                s.send(m);
+                break;
+            case sl:
+                var m0 = new LineConnector_1.StickerMessage(1, 102);
+                s.send(m0);
+                break;
+        }
+        if (s.userData.count_joke > 3) {
+            s.beginDialog("/menu");
+            s.userData.count_joke = 0;
+        }
+        else {
+            s.beginDialog("/joke");
+        }
     }
 ]);
 exports.bot.dialog("/menu", [
     function (s, r) {
         //route /joke
-        var s1 = getText(s, "provide");
-        var af = new builder.CardAction().title(s1).type("message").value(s1);
-        var c = new builder.HeroCard().title(getText(s, "me")).subtitle(getText(s, "me")).text(getText(s, "me")).buttons([af]);
+        var t_sm = getText(s, "me");
+        var t_sb = getText(s, "begin");
+        var sp = getText(s, "provide");
+        var sc = getText(s, "contact");
+        var smore = getText(s, "more");
+        var ap = new builder.CardAction().title(sp).type("message").value(sp);
+        var ac = new builder.CardAction().title(sc).type("message").value(sc);
+        var amore = new builder.CardAction().title(smore).type("message").value(smore);
+        var c = new builder.HeroCard().title(t_sm).subtitle(t_sb).text(t_sm + t_sb).buttons([ap, ac, amore]);
         var m = new builder.Message().text("me").addAttachment(c);
-        builder.Prompts.choice(s, m, [s1]);
+        builder.Prompts.choice(s, m, [sp, sc, smore]);
     },
     function (s, r) {
-        console.log("r", r.response.entity);
-        var s1 = getText(s, "provide");
+        var sp = getText(s, "provide");
+        var sc = getText(s, "contact");
+        var smore = getText(s, "more");
         var e = r.response.entity;
         switch (e) {
-            case s1:
-                // s.send("")
-                var p = getText(s, "provide_intro");
-                builder.Prompts.attachment(s, p);
+            case sp:
+                s.beginDialog("/provide");
+                break;
+            case sc:
+                s.beginDialog("/contact");
+                break;
+            case smore:
+                s.beginDialog("/joke");
                 break;
         }
         // s.endDialog("end menu");
     }
+]);
+exports.bot.dialog("/provide", [
+    function (s) {
+        var pi = getText(s, "provide_intro");
+        s.send(pi);
+    },
+    function (s, r) {
+        console.log(r);
+        s.send(r);
+    }
+]);
+exports.bot.dialog("/contact", [
+    function (s) {
+        s.endDialog("contact_context");
+    },
 ]);
