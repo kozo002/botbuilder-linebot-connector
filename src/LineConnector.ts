@@ -95,22 +95,14 @@ export class LineConnector extends botbuilder.ChatConnector {
                     text: msg.message.text,
                     res: res,
                 };
-               
+                console.log("msg",msg);
 
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
-                    if(msg.message.type==="image"){
-                        m.attachments= [{"type":"image","id":msg.message.id}];
-                    }
+                    m.attachments=[msg.message]       
                 }
-                
-
                 msg = m;
-                // let fs = require("fs");
-                // var data = fs.readFileSync(__dirname+'/joke/girl.jpg', 'utf-8');
-                // console.log(data);
                 _this.handler([msg]);
-                // _this.handler(data);
             }
             catch (e) {
                 console.error(e instanceof Error ? e.stack : e.toString());

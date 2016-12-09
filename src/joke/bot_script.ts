@@ -136,6 +136,9 @@ bot.dialog("/provide", [
     },
     (s, r) => {
         console.log("provide",r);
+        //1.get data;
+        //2.query video/image/audio id then save stroage or old file
+        //3.get url from my stroage
         s.send(new StickerMessage(1,2))
     }
 
