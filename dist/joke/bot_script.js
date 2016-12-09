@@ -62,7 +62,7 @@ exports.bot.dialog("/joke", [
                 s.send(m0);
                 break;
         }
-        if (s.userData.count_joke > 3) {
+        if (s.userData.count_joke > 0) {
             s.beginDialog("/menu");
             s.userData.count_joke = 0;
         }
@@ -108,11 +108,12 @@ exports.bot.dialog("/menu", [
 exports.bot.dialog("/provide", [
     function (s) {
         var pi = getText(s, "provide_intro");
-        s.send(pi);
+        // s.send(pi);
+        builder.Prompts.attachment(s, pi);
     },
     function (s, r) {
-        console.log(r);
-        s.send(r);
+        console.log("provide", r);
+        s.send(new LineConnector_1.StickerMessage(1, 2));
     }
 ]);
 exports.bot.dialog("/contact", [

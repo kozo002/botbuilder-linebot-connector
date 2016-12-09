@@ -60,7 +60,6 @@ var LineConnector = (function (_super) {
             return;
         }
         body.events.forEach(function (msg) {
-            // console.log("msg",msg)
             try {
                 var mid = "";
                 if (msg.source.type === "user") {
@@ -95,12 +94,16 @@ var LineConnector = (function (_super) {
                     text: msg.message.text,
                     res: res,
                 };
-                // console.log("msg.message.type", msg.message.type)
-                // console.log("msg",msg )
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
+                    if (msg.message.type === "image") {
+                        m.attachments = [{ "type": "image", "id": msg.message.id }];
+                    }
                 }
                 msg = m;
+                // let fs = require("fs");
+                // var data = fs.readFileSync(__dirname+'/joke/girl.jpg', 'utf-8');
+                // console.log(data);
                 _this.handler([msg]);
             }
             catch (e) {
@@ -163,6 +166,7 @@ var LineConnector = (function (_super) {
         });
     };
     LineConnector.prototype.send = function (messages, done) {
+        // console.log("send",messages)
         //new EventEmitter wait for call process;
         // console.log("send");
         var _this = this;
@@ -241,7 +245,6 @@ var LineConnector = (function (_super) {
     LineConnector.prototype.getRenderTemplate = function (msg) {
         var _this = this;
         return new Promise(function (res, rej) {
-            // console.log("msg", msg);
             var l = msg.attachments.length;
             if (l === 1) {
                 msg.attachments.map(function (a) {

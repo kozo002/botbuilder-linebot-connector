@@ -74,7 +74,7 @@ bot.dialog("/joke", [
                 s.send(m0)
                 break;
         }
-        if(s.userData.count_joke>3){
+        if(s.userData.count_joke>0){
             s.beginDialog("/menu");
             s.userData.count_joke = 0;
         }else{
@@ -122,9 +122,6 @@ bot.dialog("/menu", [
             case smore:
                 s.beginDialog("/joke")
                 break;
-
-
-
         }
 
         // s.endDialog("end menu");
@@ -134,13 +131,12 @@ bot.dialog("/menu", [
 bot.dialog("/provide", [
     (s) => {
         let pi = getText(s, "provide_intro");
-        s.send(pi);
-
+        // s.send(pi);
+        builder.Prompts.attachment(s,pi);
     },
     (s, r) => {
-        console.log(r);
-        s.send(r)
-
+        console.log("provide",r);
+        s.send(new StickerMessage(1,2))
     }
 
 ])

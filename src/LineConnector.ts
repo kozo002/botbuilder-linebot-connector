@@ -60,7 +60,6 @@ export class LineConnector extends botbuilder.ChatConnector {
             return;
         }
         body.events.forEach(function (msg) {
-            // console.log("msg",msg)
             try {
                 let mid = "";
                 if (msg.source.type === "user") {
@@ -96,17 +95,22 @@ export class LineConnector extends botbuilder.ChatConnector {
                     text: msg.message.text,
                     res: res,
                 };
-                // console.log("msg.message.type", msg.message.type)
-                // console.log("msg",msg )
-
+               
 
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
+                    if(msg.message.type==="image"){
+                        m.attachments= [{"type":"image","id":msg.message.id}];
+                    }
                 }
+                
 
                 msg = m;
-
+                // let fs = require("fs");
+                // var data = fs.readFileSync(__dirname+'/joke/girl.jpg', 'utf-8');
+                // console.log(data);
                 _this.handler([msg]);
+                // _this.handler(data);
             }
             catch (e) {
                 console.error(e instanceof Error ? e.stack : e.toString());
@@ -180,6 +184,7 @@ export class LineConnector extends botbuilder.ChatConnector {
 
 
     send(messages, done) {
+        // console.log("send",messages)
         //new EventEmitter wait for call process;
         // console.log("send");
         var _this = this;
@@ -271,7 +276,6 @@ export class LineConnector extends botbuilder.ChatConnector {
 
         return new Promise((res, rej) => {
 
-            // console.log("msg", msg);
             let l = msg.attachments.length;
             if (l === 1) {
 
