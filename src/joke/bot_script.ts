@@ -14,7 +14,7 @@ export var lineConnector = new LineConnector({
 export var bot = new builder.UniversalBot(lineConnector,
     {
         localizerSettings: {
-            botLocalePath: __dirname + "./../../locale",
+            botLocalePath: __dirname + "/locale",
             defaultLocale: "zh_Hans"
         }
     }
@@ -47,7 +47,7 @@ bot.dialog("/joke", [
 
     function (s, r) {
         //route /joke
-        s.userData.count_joke ++;
+        s.userData.count_joke++;
         s.send("funny_joke")
 
         let s1 = getText(s, "funny");
@@ -74,14 +74,14 @@ bot.dialog("/joke", [
                 s.send(m0)
                 break;
         }
-        if(s.userData.count_joke>0){
+        if (s.userData.count_joke > 0) {
             s.beginDialog("/menu");
             s.userData.count_joke = 0;
-        }else{
+        } else {
             s.beginDialog("/joke")
         }
 
-        
+
     }
 ])
 bot.dialog("/menu", [
@@ -130,19 +130,67 @@ bot.dialog("/menu", [
 
 bot.dialog("/provide", [
     (s) => {
+        let st = getText(s, "provide_text");
+        let so = getText(s, "provide_other");
+        let ap = new builder.CardAction().title(st).type("message").value(st);
+        let ac = new builder.CardAction().title(so).type("message").value(so);
         let pi = getText(s, "provide_intro");
-        // s.send(pi);
-        builder.Prompts.attachment(s,pi);
+        let c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ac]);
+        let m = new builder.Message().text(pi).addAttachment(c);
+        builder.Prompts.choice(s, m, [st, so]);
     },
     (s, r) => {
-        console.log("provide",r);
+        s.endDialog();
+        let st = getText(s, "provide_text");
+        let so = getText(s, "provide_other");
+        let e = r.response.entity;
+        switch (e) {
+            case st:
+                s.beginDialog("/provide_text");
+                // builder.Prompts.text(s, "provide_text");
+
+                break;
+            case so:
+                s.beginDialog("/provide_other");
+                
+                // builder.Prompts.arguments(s, "provide_other");
+
+                break;
+        }
+        
         //1.get data;
         //2.query video/image/audio id then save stroage or old file
         //3.get url from my stroage
-        s.send(new StickerMessage(1,2))
+        // s.send(new StickerMessage(1, 2))
     }
-
 ])
+
+bot.dialog("/provide_text", [
+    (s) => {
+        builder.Prompts.text(s, "provide_text");
+    },
+    (s, r) => {
+
+        s.send(new StickerMessage(1, 2))
+        s.endDialog();
+    
+    }
+])
+
+bot.dialog("/provide_other", [
+    (s) => {
+        builder.Prompts.arguments(s, "provide_other");
+    },
+    (s, r) => {
+
+        s.send(new StickerMessage(1, 2));
+        s.endDialog();
+
+    
+    }
+])
+
+
 
 
 bot.dialog("/contact", [

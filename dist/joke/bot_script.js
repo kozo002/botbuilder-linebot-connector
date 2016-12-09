@@ -8,7 +8,7 @@ exports.lineConnector = new LineConnector_1.LineConnector({
 });
 exports.bot = new builder.UniversalBot(exports.lineConnector, {
     localizerSettings: {
-        botLocalePath: __dirname + "./../../locale",
+        botLocalePath: __dirname + "/locale",
         defaultLocale: "zh_Hans"
     }
 });
@@ -107,16 +107,52 @@ exports.bot.dialog("/menu", [
 ]);
 exports.bot.dialog("/provide", [
     function (s) {
+        var st = getText(s, "provide_text");
+        var so = getText(s, "provide_other");
+        var ap = new builder.CardAction().title(st).type("message").value(st);
+        var ac = new builder.CardAction().title(so).type("message").value(so);
         var pi = getText(s, "provide_intro");
-        // s.send(pi);
-        builder.Prompts.attachment(s, pi);
+        var c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ac]);
+        var m = new builder.Message().text(pi).addAttachment(c);
+        builder.Prompts.choice(s, m, [st, so]);
     },
     function (s, r) {
-        console.log("provide", r);
+        s.endDialog();
+        var st = getText(s, "provide_text");
+        var so = getText(s, "provide_other");
+        var e = r.response.entity;
+        switch (e) {
+            case st:
+                s.beginDialog("/provide_text");
+                // builder.Prompts.text(s, "provide_text");
+                break;
+            case so:
+                s.beginDialog("/provide_other");
+                // builder.Prompts.arguments(s, "provide_other");
+                break;
+        }
         //1.get data;
         //2.query video/image/audio id then save stroage or old file
         //3.get url from my stroage
+        // s.send(new StickerMessage(1, 2))
+    }
+]);
+exports.bot.dialog("/provide_text", [
+    function (s) {
+        builder.Prompts.text(s, "provide_text");
+    },
+    function (s, r) {
         s.send(new LineConnector_1.StickerMessage(1, 2));
+        s.endDialog();
+    }
+]);
+exports.bot.dialog("/provide_other", [
+    function (s) {
+        builder.Prompts.arguments(s, "provide_other");
+    },
+    function (s, r) {
+        s.send(new LineConnector_1.StickerMessage(1, 2));
+        s.endDialog();
     }
 ]);
 exports.bot.dialog("/contact", [
