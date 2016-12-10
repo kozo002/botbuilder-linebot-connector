@@ -22,6 +22,49 @@ export class StickerMessage extends botbuilder.Message {
         })
     }
 }
+export class ImageMessage extends botbuilder.Message {
+    constructor(url:string) {
+        super();
+        this.text("image");
+        this.addEntity({
+            originalContentUrl : url,
+            previewImageUrl : url
+        })
+    }
+}
+export class VideoMessage extends botbuilder.Message {
+    constructor(video_url:string,perview_image_url:string) {
+        super();
+        this.text("video");
+        this.addEntity({
+            originalContentUrl : video_url,
+            previewImageUrl : perview_image_url
+        })
+    }
+}
+export class AudioMessage extends botbuilder.Message {
+    constructor(url:string) {
+        super();
+        this.text("audio");
+        this.addEntity({
+            originalContentUrl : url,
+            previewImageUrl : url
+        })
+    }
+}
+export class LocationMessage extends botbuilder.Message {
+    constructor(title:string,address:string,latitude:string,longitude:string) {
+        super();
+        this.text("location");
+        this.addEntity({
+            title ,
+            address,
+            latitude,
+            longitude
+        })
+    }
+}
+
 export class LineConnector extends botbuilder.ChatConnector {
     botId;
     options;
@@ -99,9 +142,19 @@ export class LineConnector extends botbuilder.ChatConnector {
 
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
-                    if(msg.message.type==="image"){
-                        m.attachments= [{"type":"image","id":msg.message.id}];
-                    }
+                    m.attachments=[msg.message]
+                    // if(msg.message.type==="image"){
+                    //     m.attachments= [{"type":"image","id":msg.message.id}];
+                    // }
+                    // else if(msg.message.type==="video"){
+                    //     m.attachments= [{"type":"video","id":msg.message.id}];
+                    // }
+                    // else if(msg.message.type==="audio"){
+                    //     m.attachments= [{"type":"audio","id":msg.message.id}];
+                    // }
+                    // else if(msg.message.type==="location"){
+                    //     m.attachments= [{"type":"location","id":msg.message.id,title:}];
+                    // }
                 }
                 
 
@@ -162,8 +215,21 @@ export class LineConnector extends botbuilder.ChatConnector {
     }
 
     get(path) {
+        console.log("get",path);
         return fetch(this.endpoint + path, { method: 'GET', headers: this.headers });
     }
+    getUserProfile(userId) {
+		return this.get('/profile/' + userId).then(function (res) {
+			return res.json();
+		});
+	}
+
+    getMessageContent(messageId) {
+		return this.get('/message/' + messageId + '/content/').then(function (res) {
+			return res.buffer();
+		});
+	}
+
 
     post(path, body) {
         return fetch(this.endpoint + path, { method: 'POST', headers: this.headers, body: JSON.stringify(body) });
@@ -226,7 +292,15 @@ export class LineConnector extends botbuilder.ChatConnector {
                 // console.log("msg",msg)
                 if (msg.text === "sticker" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
-                } else{
+                }else if (msg.text === "image" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'image', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
+                }else if (msg.text === "video" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'video', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
+                }else if (msg.text === "audio" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'audio', originalContentUrl: msg.entities[0].originalContentUrl, duration: msg.entities[0].duration });
+                }else if (msg.text === "location" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'location', title: msg.entities[0].title, address: msg.entities[0].address, latitude: msg.entities[0].latitude, longitude: msg.entities[0].longitude });
+                }else{
                     _this.sendProcess.emit("add", { type: 'text', text: msg.text });
                 
                 }
@@ -236,10 +310,12 @@ export class LineConnector extends botbuilder.ChatConnector {
 
     getData(context, callback) {
         var _this = this;
-        //  console.log("getData  context.address.channelId", context.address.channelId);
-
+         let cid = context.address.channelId + "/" + this.botId;
+         console.log("getData  cid", cid);
+        
         let query = new Parse.Query(DATA);
-        query.equalTo("channelId", context.address.channelId + "/" + this.botId).first().then((obj: Parse.Object) => {
+        query.equalTo("channelId", cid ).first().then((obj: Parse.Object) => {
+            
             if (obj !== undefined) {
                 _this.obj = obj;
                 var d: string = obj.get("data");

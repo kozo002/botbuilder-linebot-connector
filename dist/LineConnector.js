@@ -27,6 +27,60 @@ var StickerMessage = (function (_super) {
     return StickerMessage;
 }(botbuilder.Message));
 exports.StickerMessage = StickerMessage;
+var ImageMessage = (function (_super) {
+    __extends(ImageMessage, _super);
+    function ImageMessage(url) {
+        _super.call(this);
+        this.text("image");
+        this.addEntity({
+            originalContentUrl: url,
+            previewImageUrl: url
+        });
+    }
+    return ImageMessage;
+}(botbuilder.Message));
+exports.ImageMessage = ImageMessage;
+var VideoMessage = (function (_super) {
+    __extends(VideoMessage, _super);
+    function VideoMessage(video_url, perview_image_url) {
+        _super.call(this);
+        this.text("video");
+        this.addEntity({
+            originalContentUrl: video_url,
+            previewImageUrl: perview_image_url
+        });
+    }
+    return VideoMessage;
+}(botbuilder.Message));
+exports.VideoMessage = VideoMessage;
+var AudioMessage = (function (_super) {
+    __extends(AudioMessage, _super);
+    function AudioMessage(url) {
+        _super.call(this);
+        this.text("audio");
+        this.addEntity({
+            originalContentUrl: url,
+            previewImageUrl: url
+        });
+    }
+    return AudioMessage;
+}(botbuilder.Message));
+exports.AudioMessage = AudioMessage;
+var LocationMessage = (function (_super) {
+    __extends(LocationMessage, _super);
+    function LocationMessage(title, address, latitude, longitude) {
+        _super.call(this);
+        this.text("location");
+        this.addEntity({
+            title: title,
+            address: address,
+            latitude: latitude,
+            longitude: longitude
+        });
+    }
+    return LocationMessage;
+}(botbuilder.Message));
+exports.LocationMessage = LocationMessage;
 var LineConnector = (function (_super) {
     __extends(LineConnector, _super);
     function LineConnector(options) {
@@ -96,9 +150,7 @@ var LineConnector = (function (_super) {
                 };
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
-                    if (msg.message.type === "image") {
-                        m.attachments = [{ "type": "image", "id": msg.message.id }];
-                    }
+                    m.attachments = [msg.message];
                 }
                 msg = m;
                 // let fs = require("fs");
@@ -151,7 +203,18 @@ var LineConnector = (function (_super) {
         return [message];
     };
     LineConnector.prototype.get = function (path) {
+        console.log("get", path);
         return fetch(this.endpoint + path, { method: 'GET', headers: this.headers });
+    };
+    LineConnector.prototype.getUserProfile = function (userId) {
+        return this.get('/profile/' + userId).then(function (res) {
+            return res.json();
+        });
+    };
+    LineConnector.prototype.getMessageContent = function (messageId) {
+        return this.get('/message/' + messageId + '/content/').then(function (res) {
+            return res.buffer();
+        });
     };
     LineConnector.prototype.post = function (path, body) {
         return fetch(this.endpoint + path, { method: 'POST', headers: this.headers, body: JSON.stringify(body) });
@@ -206,6 +269,18 @@ var LineConnector = (function (_super) {
                 if (msg.text === "sticker" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
                 }
+                else if (msg.text === "image" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'image', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
+                }
+                else if (msg.text === "video" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'video', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
+                }
+                else if (msg.text === "audio" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'audio', originalContentUrl: msg.entities[0].originalContentUrl, duration: msg.entities[0].duration });
+                }
+                else if (msg.text === "location" && msg.entities) {
+                    _this.sendProcess.emit("add", { type: 'location', title: msg.entities[0].title, address: msg.entities[0].address, latitude: msg.entities[0].latitude, longitude: msg.entities[0].longitude });
+                }
                 else {
                     _this.sendProcess.emit("add", { type: 'text', text: msg.text });
                 }
@@ -214,9 +289,10 @@ var LineConnector = (function (_super) {
     };
     LineConnector.prototype.getData = function (context, callback) {
         var _this = this;
-        //  console.log("getData  context.address.channelId", context.address.channelId);
+        var cid = context.address.channelId + "/" + this.botId;
+        console.log("getData  cid", cid);
         var query = new Parse.Query(DATA);
-        query.equalTo("channelId", context.address.channelId + "/" + this.botId).first().then(function (obj) {
+        query.equalTo("channelId", cid).first().then(function (obj) {
             if (obj !== undefined) {
                 _this.obj = obj;
                 var d = obj.get("data");

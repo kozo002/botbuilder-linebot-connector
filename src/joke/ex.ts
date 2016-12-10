@@ -1,6 +1,8 @@
 import * as demobot from './bot_script';
 
 import { ParseServer } from 'parse-server';
+
+var S3Adapter = require('parse-server').S3Adapter;
 import Parse = require('parse/node');
 import * as express from 'express';
 import * as builder from 'botbuilder';
@@ -12,7 +14,14 @@ let api = new ParseServer({
     javascriptKey: 'javascriptKey_bot',
 
     fileKey: 'optionalFileKey_pet',
-    serverURL: 'http://localhost:1337/parse' // Don't forget to change to https if needed
+    serverURL: 'http://localhost:1337/parse', // Don't forget to change to https if needed
+    filesAdapter: new S3Adapter(
+    "AKIAIKFEA3AEYFE3INTQ",
+    "QcsG57fgyUwR4ztGSi0SkxEbVTtjD+2aY4+WjRMw",
+    "jokebot",
+    {directAccess: true}
+  )
+
 });
 
 var app = express();

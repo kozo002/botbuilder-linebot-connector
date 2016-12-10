@@ -1,6 +1,7 @@
 "use strict";
 var demobot = require('./bot_script');
 var parse_server_1 = require('parse-server');
+var S3Adapter = require('parse-server').S3Adapter;
 var Parse = require('parse/node');
 var express = require('express');
 var api = new parse_server_1.ParseServer({
@@ -9,7 +10,8 @@ var api = new parse_server_1.ParseServer({
     masterKey: 'myMasterKeylinebotconnector',
     javascriptKey: 'javascriptKey_bot',
     fileKey: 'optionalFileKey_pet',
-    serverURL: 'http://localhost:1337/parse' // Don't forget to change to https if needed
+    serverURL: 'http://localhost:1337/parse',
+    filesAdapter: new S3Adapter("AKIAIKFEA3AEYFE3INTQ", "QcsG57fgyUwR4ztGSi0SkxEbVTtjD+2aY4+WjRMw", "jokebot", { directAccess: true })
 });
 var app = express();
 app.use('/parse', api);

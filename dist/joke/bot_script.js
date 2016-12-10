@@ -1,4 +1,5 @@
 "use strict";
+var Parse = require('parse/node');
 var LineConnector_1 = require('./../LineConnector');
 var builder = require('botbuilder');
 exports.lineConnector = new LineConnector_1.LineConnector({
@@ -12,6 +13,7 @@ exports.bot = new builder.UniversalBot(exports.lineConnector, {
         defaultLocale: "zh_Hans"
     }
 });
+var JOKE = Parse.Object.extend("JOKE");
 var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), i); };
 exports.bot.dialog('/', [
     function (s) {
@@ -34,18 +36,53 @@ exports.bot.dialog('/', [
         s.beginDialog("/joke");
     }
 ]);
+var cJoke;
 exports.bot.dialog("/joke", [
     function (s, r) {
+        // console.log(s.message)
         //route /joke
         s.userData.count_joke++;
-        s.send("funny_joke");
-        var s1 = getText(s, "funny");
-        var af = new builder.CardAction().title(s1).type("message").value(s1);
-        var s2 = getText(s, "lame");
-        var al = new builder.CardAction().title(s2).type("message").value(s2);
-        var c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
-        var m = new builder.Message().text("is_this_funny").addAttachment(c);
-        builder.Prompts.choice(s, m, [s1, s2]);
+        //query joke
+        var q = new Parse.Query(JOKE);
+        q.notContainedIn("read", [s.message.address.channelId]).first().then(function (obj, err) {
+            console.log("obj", obj);
+            if (err) {
+                console.log("err", err);
+                s.send("err");
+                return;
+            }
+            if (obj === undefined) {
+                s.send("no_joke_you_read");
+                s.endDialog();
+                s.beginDialog("/menu");
+            }
+            cJoke = obj;
+            obj.add("read", s.message.address.channelId);
+            obj.save();
+            var t = obj.get("type");
+            if (t === "text") {
+                var text = obj.get("text");
+                s.send(text);
+            }
+            else {
+                var f = obj.get("file");
+                if (t === "image") {
+                    var m_1 = new LineConnector_1.ImageMessage(f.url());
+                    s.send(m_1);
+                }
+                else if (t === "video") {
+                    var m_2 = new LineConnector_1.VideoMessage(f.url(), "https://israel365.com/wp-content/uploads/2015/06/video.png");
+                    s.send(m_2);
+                }
+            }
+            var s1 = getText(s, "funny");
+            var af = new builder.CardAction().title(s1).type("message").value(s1);
+            var s2 = getText(s, "lame");
+            var al = new builder.CardAction().title(s2).type("message").value(s2);
+            var c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
+            var m = new builder.Message().text("is_this_funny").addAttachment(c);
+            builder.Prompts.choice(s, m, [s1, s2]);
+        });
     },
     function (s, r) {
         s.endDialog();
@@ -54,10 +91,24 @@ exports.bot.dialog("/joke", [
         var e = r.response.entity;
         switch (e) {
             case sf:
+                var countf = 0;
+                var cf = cJoke.get("funny");
+                if (cf) {
+                    countf = cf;
+                }
+                cJoke.set("funny", countf + 1);
+                cJoke.save();
                 var m = new LineConnector_1.StickerMessage(2, 18);
                 s.send(m);
                 break;
             case sl:
+                var countl = 0;
+                var cl = cJoke.get("lame");
+                if (cl) {
+                    countl = cl;
+                }
+                cJoke.set("lame", countl + 1);
+                cJoke.save();
                 var m0 = new LineConnector_1.StickerMessage(1, 102);
                 s.send(m0);
                 break;
@@ -108,25 +159,31 @@ exports.bot.dialog("/menu", [
 exports.bot.dialog("/provide", [
     function (s) {
         var st = getText(s, "provide_text");
-        var so = getText(s, "provide_other");
+        var si = getText(s, "provide_image");
+        var sv = getText(s, "provide_video");
         var ap = new builder.CardAction().title(st).type("message").value(st);
-        var ac = new builder.CardAction().title(so).type("message").value(so);
+        var ai = new builder.CardAction().title(si).type("message").value(si);
+        var av = new builder.CardAction().title(sv).type("message").value(sv);
         var pi = getText(s, "provide_intro");
-        var c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ac]);
+        var c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ai, av]);
         var m = new builder.Message().text(pi).addAttachment(c);
-        builder.Prompts.choice(s, m, [st, so]);
+        builder.Prompts.choice(s, m, [st, si, sv]);
     },
     function (s, r) {
         s.endDialog();
         var st = getText(s, "provide_text");
-        var so = getText(s, "provide_other");
+        var si = getText(s, "provide_image");
+        var sv = getText(s, "provide_video");
         var e = r.response.entity;
         switch (e) {
             case st:
                 s.beginDialog("/provide_text");
                 break;
-            case so:
-                s.beginDialog("/provide_other");
+            case si:
+                s.beginDialog("/provide_image");
+                break;
+            case sv:
+                s.beginDialog("/provide_video");
                 break;
         }
         //1.get data;
@@ -137,7 +194,7 @@ exports.bot.dialog("/provide", [
 ]);
 exports.bot.dialog("/provide_text", [
     function (s) {
-        builder.Prompts.text(s, "provide_text");
+        builder.Prompts.text(s, "pls_provide");
     },
     function (s, r) {
         console.log("provide", r);
@@ -145,19 +202,57 @@ exports.bot.dialog("/provide_text", [
         s.send(text);
         s.send("thx_you_provide");
         s.endDialog();
+        var j = new JOKE();
+        j.set("type", "text");
+        j.set("text", text);
+        j.save();
         s.beginDialog("/menu");
     }
 ]);
-exports.bot.dialog("/provide_other", [
+exports.bot.dialog("/provide_image", [
     function (s) {
-        builder.Prompts.attachment(s, "provide_other");
+        // console.log(s);
+        builder.Prompts.attachment(s, "pls_provide");
+        builder.Prompts.text(s, "do_not");
     },
     function (s, r) {
         s.send(new LineConnector_1.StickerMessage(1, 2));
         s.endDialog();
-        s.beginDialog("/menu");
+        var id = r.response[0].id;
+        saveJokeFile("image", id, s);
     }
 ]);
+exports.bot.dialog("/provide_video", [
+    function (s) {
+        builder.Prompts.attachment(s, "pls_provide");
+        builder.Prompts.text(s, "do_not");
+    },
+    function (s, r) {
+        s.send(new LineConnector_1.StickerMessage(1, 2));
+        s.endDialog();
+        var id = r.response[0].id;
+        saveJokeFile("video", id, s);
+    }
+]);
+var saveJokeFile = function (type, id, s) {
+    exports.lineConnector.getMessageContent(id).then(function (data, err) {
+        if (data) {
+            var d1 = Array.prototype.slice.call(new Buffer(data), 0);
+            var subname = ".png";
+            if (type === "video") {
+                subname = ".mp4";
+            }
+            var parseFile_1 = new Parse.File("data" + subname, d1);
+            parseFile_1.save().then(function () {
+                var j = new JOKE();
+                j.set("type", type);
+                j.set("file", parseFile_1);
+                j.save();
+                s.beginDialog("/menu");
+            });
+        }
+    });
+};
 exports.bot.dialog("/contact", [
     function (s) {
         s.endDialog("contact_context");
