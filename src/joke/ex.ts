@@ -39,9 +39,20 @@ app.use('/linebot0', demobot.lineConnector.listen());
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');
 });
-let port = 9090;
-if(process.env.port){
-    port = process.env.port;
+var port = normalizePort(process.env.PORT || '9090');
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
 }
 app.listen( port, function () {
 

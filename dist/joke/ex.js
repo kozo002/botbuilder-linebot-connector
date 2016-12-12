@@ -14,6 +14,7 @@ var api = new parse_server_1.ParseServer({
     filesAdapter: new S3Adapter("AKIAIKFEA3AEYFE3INTQ", "QcsG57fgyUwR4ztGSi0SkxEbVTtjD+2aY4+WjRMw", "jokebot", { directAccess: true })
 });
 var app = express();
+console.log("start bot!");
 app.use('/parse', api);
 app.listen(1337, function () {
     console.log('parse-server-example running on port 1337.');
@@ -24,6 +25,19 @@ app.use('/linebot0', demobot.lineConnector.listen());
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');
 });
-app.listen(process.env.port || 9090, function () {
-    console.log('server is running.');
+var port = normalizePort(process.env.PORT || '9090');
+function normalizePort(val) {
+    var port = parseInt(val, 10);
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+    return false;
+}
+app.listen(port, function () {
+    console.log('server is running.' + port);
 });
