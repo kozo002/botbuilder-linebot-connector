@@ -4,7 +4,9 @@
   "description": "Microsoft Bot Framework V3 connector for Line api",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/example.js"
+    "dev": "gulp & nodemon dist/joke/ex.js & tsc -w",
+    "ngrok": " ngrok http 9090",
+    "start": "node dist/example/ex.js "
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,8 @@
   "devDependencies": {
     "@types/body-parser": "^0.0.33",
     "@types/es6-shim": "^0.31.32",
-    "@types/parse": "^1.2.32"
+    "@types/parse": "^1.2.32",
+    "gulp": "^3.9.1",
+    "gulp-watch": "^4.3.11"
   }
 }

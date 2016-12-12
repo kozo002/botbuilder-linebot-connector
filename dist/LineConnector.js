@@ -290,7 +290,6 @@ var LineConnector = (function (_super) {
     LineConnector.prototype.getData = function (context, callback) {
         var _this = this;
         var cid = context.address.channelId + "/" + this.botId;
-        console.log("getData  cid", cid);
         var query = new Parse.Query(DATA);
         query.equalTo("channelId", cid).first().then(function (obj) {
             if (obj !== undefined) {
@@ -305,8 +304,6 @@ var LineConnector = (function (_super) {
         });
     };
     LineConnector.prototype.saveData = function (context, data, callback) {
-        // console.log("save",data)
-        // console.log("save",data.privateConversationData["BotBuilder.Data.SessionState"].callstack)
         var obj = new DATA();
         if (this.obj) {
             obj = this.obj;

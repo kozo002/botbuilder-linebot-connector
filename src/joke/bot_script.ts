@@ -10,8 +10,6 @@ export var lineConnector = new LineConnector({
     channelSecret: "b07f4fdc3a32d56c277b4b4b09d0876c",
     channelAccessToken: "EUupZ8DuplDAVoDH32DCaV+u6TTpq7uwQKTnFnT3zQaxpIUjUJomJ5CtGvJf3Z/pvWtVg+YhftWWQDfXIrSzgNAUuKeflOaezW2XRUgI61HlVrad7OP8TgXFnzFydJ6g8O3BsHmSYYwY7wqbczw57AdB04t89/1O/w1cDnyilFU="
 });
-
-
 export var bot = new builder.UniversalBot(lineConnector,
     {
         localizerSettings: {
@@ -20,10 +18,8 @@ export var bot = new builder.UniversalBot(lineConnector,
         }
     }
 );
-
 var JOKE = Parse.Object.extend("JOKE");
 let getText = (s, i) => { return s.localizer.gettext(s.preferredLocale(), i) };
-
 bot.dialog('/', [
     function (s) {
         if (s.userData.agree) {
@@ -45,32 +41,28 @@ bot.dialog('/', [
     }
 ]);
 
-var cJoke:Parse.Object;
+var cJoke: Parse.Object;
 bot.dialog("/joke", [
-
     function (s, r) {
-
-
-        // console.log(s.message)
-
-        //route /joke
         s.userData.count_joke++;
         //query joke
         let q = new Parse.Query(JOKE);
-        q.notContainedIn("read", [s.message.address.channelId]).first().then((obj: Parse.Object, err) => {
-            console.log("obj",obj)
+        q.notContainedIn("read", [s.message.address.channelId]).descending("funny").first().then((obj: Parse.Object, err) => {
+            console.log("obj", obj)
             if (err) {
                 console.log("err", err);
                 s.send("err")
                 return;
             }
-            if(obj===undefined){
+            if (obj === undefined) {
+                   s.send(new StickerMessage(1, 403));
+             
                 s.send("no_joke_you_read");
                 s.endDialog();
                 s.beginDialog("/menu");
             }
             cJoke = obj;
-            obj.add("read",s.message.address.channelId)
+            obj.add("read", s.message.address.channelId)
             obj.save();
             let t = obj.get("type");
             if (t === "text") {
@@ -94,40 +86,36 @@ bot.dialog("/joke", [
             let c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
             let m = new builder.Message().text("is_this_funny").addAttachment(c);
             builder.Prompts.choice(s, m, [s1, s2])
-
-
         })
-
-
     },
     (s, r) => {
         s.endDialog();
         let sf = getText(s, "funny");
         let sl = getText(s, "lame");
         let e = r.response.entity;
-
         switch (e) {
             case sf:
                 let countf = 0;
-                let cf:number=  cJoke.get("funny");
-                if(cf){
+                let cf: number = cJoke.get("funny");
+                if (cf) {
                     countf = cf;
                 }
-                cJoke.set("funny",countf+1);
+                cJoke.set("funny", countf + 1);
                 cJoke.save();
-                let m = new StickerMessage(2, 18);
+
+                let m = new StickerMessage(2, 100);
                 s.send(m);
                 break;
             case sl:
                 let countl = 0;
-                let cl:number=  cJoke.get("lame");
-                if(cl){
+                let cl: number = cJoke.get("lame");
+                if (cl) {
                     countl = cl;
                 }
-                cJoke.set("lame",countl+1);
+                cJoke.set("lame", countl + 1);
                 cJoke.save();
-                
-                let m0 = new StickerMessage(1, 102);
+
+                let m0 = new StickerMessage(1, 113);
                 s.send(m0);
                 break;
         }
@@ -151,9 +139,6 @@ bot.dialog("/menu", [
         let sp = getText(s, "provide");
         let sc = getText(s, "contact");
         let smore = getText(s, "more");
-
-
-
         let ap = new builder.CardAction().title(sp).type("message").value(sp);
         let ac = new builder.CardAction().title(sc).type("message").value(sc);
         let amore = new builder.CardAction().title(smore).type("message").value(smore);
@@ -180,45 +165,54 @@ bot.dialog("/menu", [
                 s.beginDialog("/joke")
                 break;
         }
-
-        // s.endDialog("end menu");
     }
 ])
-
 bot.dialog("/provide", [
     (s) => {
         let st = getText(s, "provide_text");
         let si = getText(s, "provide_image");
         let sv = getText(s, "provide_video");
+        let se = getText(s, "provide_end");
 
         let ap = new builder.CardAction().title(st).type("message").value(st);
         let ai = new builder.CardAction().title(si).type("message").value(si);
         let av = new builder.CardAction().title(sv).type("message").value(sv);
+        let ae = new builder.CardAction().title(se).type("message").value(se);
 
         let pi = getText(s, "provide_intro");
-        let c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ai, av]);
+        let c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ai, av, ae]);
         let m = new builder.Message().text(pi).addAttachment(c);
-        builder.Prompts.choice(s, m, [st, si, sv]);
+        builder.Prompts.choice(s, m, [st, si, sv, se]);
     },
     (s, r) => {
         s.endDialog();
         let st = getText(s, "provide_text");
         let si = getText(s, "provide_image");
         let sv = getText(s, "provide_video");
+        let se = getText(s, "provide_end");
+
         let e = r.response.entity;
         switch (e) {
             case st:
+                
                 s.beginDialog("/provide_text");
 
                 break;
             case si:
+                
                 s.beginDialog("/provide_image");
 
                 break;
             case sv:
+            s.send(new StickerMessage(1, 4));
+                
                 s.beginDialog("/provide_video");
 
                 break;
+            case se:
+                
+                s.send(new StickerMessage(1, 4));
+                s.beginDialog("/");
         }
 
         //1.get data;
@@ -236,6 +230,8 @@ bot.dialog("/provide_text", [
         console.log("provide", r);
         let text: string = r.response;
         s.send(text);
+        let m0 = new StickerMessage(1, 2);
+
         s.send("thx_you_provide");
         s.endDialog();
 

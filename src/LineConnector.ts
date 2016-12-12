@@ -13,51 +13,51 @@ var url = require('url');
 var DATA = Parse.Object.extend("DATA");
 
 export class StickerMessage extends botbuilder.Message {
-    constructor(pId:number, sId:number) {
+    constructor(pId: number, sId: number) {
         super();
         this.text("sticker");
         this.addEntity({
-            packageId : pId.toString(),
-            stickerId : sId.toString()
+            packageId: pId.toString(),
+            stickerId: sId.toString()
         })
     }
 }
 export class ImageMessage extends botbuilder.Message {
-    constructor(url:string) {
+    constructor(url: string) {
         super();
         this.text("image");
         this.addEntity({
-            originalContentUrl : url,
-            previewImageUrl : url
+            originalContentUrl: url,
+            previewImageUrl: url
         })
     }
 }
 export class VideoMessage extends botbuilder.Message {
-    constructor(video_url:string,perview_image_url:string) {
+    constructor(video_url: string, perview_image_url: string) {
         super();
         this.text("video");
         this.addEntity({
-            originalContentUrl : video_url,
-            previewImageUrl : perview_image_url
+            originalContentUrl: video_url,
+            previewImageUrl: perview_image_url
         })
     }
 }
 export class AudioMessage extends botbuilder.Message {
-    constructor(url:string) {
+    constructor(url: string) {
         super();
         this.text("audio");
         this.addEntity({
-            originalContentUrl : url,
-            previewImageUrl : url
+            originalContentUrl: url,
+            previewImageUrl: url
         })
     }
 }
 export class LocationMessage extends botbuilder.Message {
-    constructor(title:string,address:string,latitude:string,longitude:string) {
+    constructor(title: string, address: string, latitude: string, longitude: string) {
         super();
         this.text("location");
         this.addEntity({
-            title ,
+            title,
             address,
             latitude,
             longitude
@@ -138,11 +138,11 @@ export class LineConnector extends botbuilder.ChatConnector {
                     text: msg.message.text,
                     res: res,
                 };
-               
+
 
                 if (msg.message.type !== "text") {
                     m.text = msg.message.type;
-                    m.attachments=[msg.message]
+                    m.attachments = [msg.message]
                     // if(msg.message.type==="image"){
                     //     m.attachments= [{"type":"image","id":msg.message.id}];
                     // }
@@ -156,7 +156,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                     //     m.attachments= [{"type":"location","id":msg.message.id,title:}];
                     // }
                 }
-                
+
 
                 msg = m;
                 // let fs = require("fs");
@@ -215,20 +215,20 @@ export class LineConnector extends botbuilder.ChatConnector {
     }
 
     get(path) {
-        console.log("get",path);
+        console.log("get", path);
         return fetch(this.endpoint + path, { method: 'GET', headers: this.headers });
     }
     getUserProfile(userId) {
-		return this.get('/profile/' + userId).then(function (res) {
-			return res.json();
-		});
-	}
+        return this.get('/profile/' + userId).then(function (res) {
+            return res.json();
+        });
+    }
 
     getMessageContent(messageId) {
-		return this.get('/message/' + messageId + '/content/').then(function (res) {
-			return res.buffer();
-		});
-	}
+        return this.get('/message/' + messageId + '/content/').then(function (res) {
+            return res.buffer();
+        });
+    }
 
 
     post(path, body) {
@@ -292,17 +292,17 @@ export class LineConnector extends botbuilder.ChatConnector {
                 // console.log("msg",msg)
                 if (msg.text === "sticker" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
-                }else if (msg.text === "image" && msg.entities) {
+                } else if (msg.text === "image" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'image', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
-                }else if (msg.text === "video" && msg.entities) {
+                } else if (msg.text === "video" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'video', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
-                }else if (msg.text === "audio" && msg.entities) {
+                } else if (msg.text === "audio" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'audio', originalContentUrl: msg.entities[0].originalContentUrl, duration: msg.entities[0].duration });
-                }else if (msg.text === "location" && msg.entities) {
+                } else if (msg.text === "location" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'location', title: msg.entities[0].title, address: msg.entities[0].address, latitude: msg.entities[0].latitude, longitude: msg.entities[0].longitude });
-                }else{
+                } else {
                     _this.sendProcess.emit("add", { type: 'text', text: msg.text });
-                
+
                 }
             }
         })
@@ -310,34 +310,25 @@ export class LineConnector extends botbuilder.ChatConnector {
 
     getData(context, callback) {
         var _this = this;
-         let cid = context.address.channelId + "/" + this.botId;
-         console.log("getData  cid", cid);
-        
+        let cid = context.address.channelId + "/" + this.botId;
         let query = new Parse.Query(DATA);
-        query.equalTo("channelId", cid ).first().then((obj: Parse.Object) => {
-            
+        query.equalTo("channelId", cid).first().then((obj: Parse.Object) => {
             if (obj !== undefined) {
                 _this.obj = obj;
                 var d: string = obj.get("data");
                 var data = JSON.parse(d);
                 callback(null, data);
             } else {
-
                 callback(null, null);
             }
-
         })
     }
     saveData(context, data, callback) {
-        // console.log("save",data)
-
-        // console.log("save",data.privateConversationData["BotBuilder.Data.SessionState"].callstack)
         let obj = new DATA();
 
         if (this.obj) {
             obj = this.obj;
         }
-
         obj.set("channelId", context.address.channelId + "/" + this.botId)
         obj.set("data", JSON.stringify(data));
         obj.save().then((err, data) => {

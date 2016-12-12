@@ -39,12 +39,10 @@ exports.bot.dialog('/', [
 var cJoke;
 exports.bot.dialog("/joke", [
     function (s, r) {
-        // console.log(s.message)
-        //route /joke
         s.userData.count_joke++;
         //query joke
         var q = new Parse.Query(JOKE);
-        q.notContainedIn("read", [s.message.address.channelId]).first().then(function (obj, err) {
+        q.notContainedIn("read", [s.message.address.channelId]).descending("funny").first().then(function (obj, err) {
             console.log("obj", obj);
             if (err) {
                 console.log("err", err);
@@ -52,6 +50,7 @@ exports.bot.dialog("/joke", [
                 return;
             }
             if (obj === undefined) {
+                s.send(new LineConnector_1.StickerMessage(1, 403));
                 s.send("no_joke_you_read");
                 s.endDialog();
                 s.beginDialog("/menu");
@@ -98,7 +97,7 @@ exports.bot.dialog("/joke", [
                 }
                 cJoke.set("funny", countf + 1);
                 cJoke.save();
-                var m = new LineConnector_1.StickerMessage(2, 18);
+                var m = new LineConnector_1.StickerMessage(2, 100);
                 s.send(m);
                 break;
             case sl:
@@ -109,7 +108,7 @@ exports.bot.dialog("/joke", [
                 }
                 cJoke.set("lame", countl + 1);
                 cJoke.save();
-                var m0 = new LineConnector_1.StickerMessage(1, 102);
+                var m0 = new LineConnector_1.StickerMessage(1, 113);
                 s.send(m0);
                 break;
         }
@@ -153,7 +152,6 @@ exports.bot.dialog("/menu", [
                 s.beginDialog("/joke");
                 break;
         }
-        // s.endDialog("end menu");
     }
 ]);
 exports.bot.dialog("/provide", [
@@ -161,19 +159,22 @@ exports.bot.dialog("/provide", [
         var st = getText(s, "provide_text");
         var si = getText(s, "provide_image");
         var sv = getText(s, "provide_video");
+        var se = getText(s, "provide_end");
         var ap = new builder.CardAction().title(st).type("message").value(st);
         var ai = new builder.CardAction().title(si).type("message").value(si);
         var av = new builder.CardAction().title(sv).type("message").value(sv);
+        var ae = new builder.CardAction().title(se).type("message").value(se);
         var pi = getText(s, "provide_intro");
-        var c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ai, av]);
+        var c = new builder.HeroCard().title(pi).subtitle(pi).text(pi).buttons([ap, ai, av, ae]);
         var m = new builder.Message().text(pi).addAttachment(c);
-        builder.Prompts.choice(s, m, [st, si, sv]);
+        builder.Prompts.choice(s, m, [st, si, sv, se]);
     },
     function (s, r) {
         s.endDialog();
         var st = getText(s, "provide_text");
         var si = getText(s, "provide_image");
         var sv = getText(s, "provide_video");
+        var se = getText(s, "provide_end");
         var e = r.response.entity;
         switch (e) {
             case st:
@@ -183,8 +184,12 @@ exports.bot.dialog("/provide", [
                 s.beginDialog("/provide_image");
                 break;
             case sv:
+                s.send(new LineConnector_1.StickerMessage(1, 4));
                 s.beginDialog("/provide_video");
                 break;
+            case se:
+                s.send(new LineConnector_1.StickerMessage(1, 4));
+                s.beginDialog("/");
         }
         //1.get data;
         //2.query video/image/audio id then save stroage or old file
@@ -200,6 +205,7 @@ exports.bot.dialog("/provide_text", [
         console.log("provide", r);
         var text = r.response;
         s.send(text);
+        var m0 = new LineConnector_1.StickerMessage(1, 2);
         s.send("thx_you_provide");
         s.endDialog();
         var j = new JOKE();
