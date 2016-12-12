@@ -9,11 +9,10 @@ exports.lineConnector = new LineConnector_1.LineConnector({
 });
 exports.bot = new builder.UniversalBot(exports.lineConnector, {
     localizerSettings: {
-        botLocalePath: process.cwd() + "/dist/joke/locale",
+        botLocalePath: __dirname + "/locale",
         defaultLocale: "zh_Hans"
     }
 });
-console.log(__dirname, process.cwd());
 var JOKE = Parse.Object.extend("JOKE");
 var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), i); };
 exports.bot.dialog('/', [
