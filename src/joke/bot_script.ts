@@ -22,6 +22,7 @@ var JOKE = Parse.Object.extend("JOKE");
 let getText = (s, i) => { return s.localizer.gettext(s.preferredLocale(), i) };
 bot.dialog('/', [
     function (s) {
+        s.send(s.library.localePath());
         if (s.userData.agree) {
             // s.send("me");
             s.beginDialog("/menu");
