@@ -25,6 +25,7 @@ let api = new ParseServer({
 });
 
 var app = express();
+console.log("start bot!")
 app.use('/parse', api);
 app.listen(1337, function () {
     console.log('parse-server-example running on port 1337.');
