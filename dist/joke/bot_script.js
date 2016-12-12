@@ -98,7 +98,7 @@ exports.bot.dialog("/joke", [
                 }
                 cJoke.set("funny", countf + 1);
                 cJoke.save();
-                var m = new LineConnector_1.StickerMessage(2, 100);
+                var m = new LineConnector_1.StickerMessage(1, 100);
                 s.send(m);
                 break;
             case sl:

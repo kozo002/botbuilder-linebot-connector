@@ -267,9 +267,6 @@ var LineConnector = (function (_super) {
             else {
                 // console.log("msg",msg)
                 if (msg.text === "sticker" && msg.entities) {
-                    var js = { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId };
-                    console.log("sticker", msg.entities);
-                    console.log("sticker", JSON.stringify(js));
                     _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
                 }
                 else if (msg.text === "image" && msg.entities) {

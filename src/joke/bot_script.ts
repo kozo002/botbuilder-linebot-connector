@@ -104,7 +104,7 @@ bot.dialog("/joke", [
                 cJoke.set("funny", countf + 1);
                 cJoke.save();
 
-                let m = new StickerMessage(2, 100);
+                let m = new StickerMessage(1, 100);
                 s.send(m);
                 break;
             case sl:
