@@ -39,6 +39,11 @@ app.use('/linebot0', demobot.lineConnector.listen());
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');
 });
-app.listen(process.env.port || 9090, function () {
-    console.log('server is running.');
+let port = 9090;
+if(process.env.port){
+    port = process.env.port;
+}
+app.listen( port, function () {
+
+    console.log('server is running.' + port);
 });
