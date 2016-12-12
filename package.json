@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "gulp & nodemon dist/joke/ex.js & tsc -w",
     "ngrok": " ngrok http 9090",
-    "start": "node dist/example/ex.js "
+    "start": "node dist/joke/ex.js "
   },
   "repository": {
     "type": "git",
