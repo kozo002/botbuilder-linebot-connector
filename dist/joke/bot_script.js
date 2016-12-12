@@ -13,6 +13,8 @@ exports.bot = new builder.UniversalBot(exports.lineConnector, {
         defaultLocale: "zh_Hans"
     }
 });
+console.log("__dirname",__dirname);
+
 var JOKE = Parse.Object.extend("JOKE");
 var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), i); };
 exports.bot.dialog('/', [
