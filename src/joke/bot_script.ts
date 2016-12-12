@@ -14,7 +14,7 @@ export var bot = new builder.UniversalBot(lineConnector,
     {
         localizerSettings: {
             botLocalePath: __dirname + "/locale",
-            defaultLocale: "en"
+            defaultLocale: "zh_Hans"
         }
     }
 );

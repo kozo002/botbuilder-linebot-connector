@@ -4,7 +4,7 @@ var connector = new builder.ConsoleConnector().listen(); //platform -> input fro
 var bot = new builder.UniversalBot(connector, {
     localizerSettings: {
         botLocalePath: __dirname + "./../../locale",
-        defaultLocale: "zh_Hans"
+        defaultLocale: "zh"
     }
 });
 bot.dialog("/", ([function (s) {

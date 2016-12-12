@@ -10,7 +10,7 @@ exports.lineConnector = new LineConnector_1.LineConnector({
 exports.bot = new builder.UniversalBot(exports.lineConnector, {
     localizerSettings: {
         botLocalePath: __dirname + "/locale",
-        defaultLocale: "en"
+        defaultLocale: "zh_Hans"
     }
 });
 var JOKE = Parse.Object.extend("JOKE");
