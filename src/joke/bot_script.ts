@@ -13,13 +13,16 @@ export var lineConnector = new LineConnector({
 export var bot = new builder.UniversalBot(lineConnector,
     {
         localizerSettings: {
-            botLocalePath: __dirname + "/locale",
+            botLocalePath: process.cwd() + "/dist/joke/locale",
             defaultLocale: "zh_Hans"
         }
     }
 );
+console.log(__dirname,process.cwd())
+
 var JOKE = Parse.Object.extend("JOKE");
 let getText = (s, i) => { return s.localizer.gettext(s.preferredLocale(), i) };
+
 bot.dialog('/', [
     function (s) {
         if (s.userData.agree) {
