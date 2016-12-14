@@ -416,7 +416,7 @@ var LineConnector = (function (_super) {
                                 r_2.template.actions.push(bn);
                             });
                             r_2.altText += subtext_1;
-                            console.log(r_2);
+                            // console.log(r);
                             if (tc.images !== undefined) {
                                 r_2.template.thumbnailImageUrl = tc.images[0].url;
                             }

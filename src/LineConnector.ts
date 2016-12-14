@@ -447,7 +447,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                                 r.template.actions.push(bn)
                             });
                             r.altText += subtext;
-                            console.log(r);
+                            // console.log(r);
 
                             if (tc.images !== undefined) {
                                 r.template.thumbnailImageUrl = tc.images[0].url;
