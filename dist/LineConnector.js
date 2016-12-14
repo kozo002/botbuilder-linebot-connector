@@ -349,19 +349,23 @@ var LineConnector = (function (_super) {
         });
     };
     LineConnector.prototype.saveData = function (context, data, callback) {
-        var obj = new DATA();
-        if (this.obj) {
-            obj = this.obj;
-        }
+        var _this = this;
+        var cid = context.address.channelId + "/" + this.botId;
+        var query = new Parse.Query(DATA);
+        query.equalTo("channelId", cid).first().then(function (obj) {
+            if (obj === undefined) {
+                obj = new DATA();
+            }
+            obj.set("channelId", context.address.channelId + "/" + _this.botId);
+            obj.set("data", JSON.stringify(data));
+            obj.save().then(function (err, data) {
+                // console.log("saveData 2", err, data)
+                callback(null);
+            });
+        });
         // console.log("context",context);
         // obj.set("room_type", context.address.from.name);
         // obj.set("room_id", context.address.id);
-        obj.set("channelId", context.address.channelId + "/" + this.botId);
-        obj.set("data", JSON.stringify(data));
-        obj.save().then(function (err, data) {
-            // console.log("saveData 2", err, data)
-            callback(null);
-        });
     };
     LineConnector.prototype.getRenderTemplate = function (msg) {
         var _this = this;
