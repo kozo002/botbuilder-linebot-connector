@@ -29,6 +29,8 @@ bot.dialog('/', [
     (s) => {
         if (!s.userData.init) {
             s.send("introduce");
+            s.send("url")
+            
             s.userData.init = true;
         }
         s.endDialog();
@@ -87,6 +89,7 @@ bot.dialog('/set_adv', [
             s.dialogData.type = "other";
             builder.Prompts.attachment(s, "send_me_the_content");
         } else {
+            s.send("url")
             s.endDialog("end");
             s.beginDialog("/")
             
