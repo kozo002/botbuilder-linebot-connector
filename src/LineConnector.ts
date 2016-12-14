@@ -12,6 +12,49 @@ var url = require('url');
 
 var DATA = Parse.Object.extend("DATA");
 
+
+export class ConfirmMessage extends botbuilder.Message{
+    constructor(index:{title:string,subtitle:string,text:string},option1:{title:string,type:string,value:string},option2?:{title:string,type:string,value:string},option3?:{title:string,type:string,value:string}){
+        super();
+        
+        let ass = [];
+        let a1;
+        let a0 = new botbuilder.CardAction().title(option1.title).type(option1.type).value(option1.value);
+        ass.push(a0);
+        if(option2){
+            a1 = new botbuilder.CardAction().title(option2.title).type(option2.type).value(option2.value);
+            ass.push(a1);
+        }
+        if(option3){
+            let a = new botbuilder.CardAction().title(option3.title).type(option3.type).value(option3.value);
+            ass.push(a);
+        }
+        
+        let c = new botbuilder.HeroCard().title(index.title).subtitle(index.subtitle).text(index.text);
+        c.buttons(ass)
+        
+        this.text(index.text).addAttachment(c);   
+    }
+}
+export class BasicConfirmMessage extends ConfirmMessage {
+    constructor(text:string,option1:string,option2?:string,option3?:string){
+        let begin = {title:text,subtitle:text,text:text};
+        let o1 = {title:option1,type:"message",value:option1};
+        let o2;
+        if(option2){
+            o2 = {title:option2,type:"message",value:option2};
+        }
+        let o3
+        if(option3){
+            o3 = {title:option3,type:"message",value:option3};
+        }
+        
+        super(begin,o1,o2,o3);
+        
+    }
+}
+
+
 export class StickerMessage extends botbuilder.Message {
     constructor(pId: number, sId: number) {
         super();
@@ -109,7 +152,10 @@ export class LineConnector extends botbuilder.ChatConnector {
                     mid = msg.source.userId
                 } else if (msg.source.type === "group") {
                     mid = msg.source.groupId
+                } else if (msg.source.type === "room") {
+                    mid = msg.source.roomId
                 }
+                //console.log("msg.source",msg.source)
 
                 let m = {
                     locale: 'textLocale',
@@ -329,6 +375,11 @@ export class LineConnector extends botbuilder.ChatConnector {
         if (this.obj) {
             obj = this.obj;
         }
+        // console.log("context",context);
+        // obj.set("room_type", context.address.from.name);
+        // obj.set("room_id", context.address.id);
+        
+        
         obj.set("channelId", context.address.channelId + "/" + this.botId)
         obj.set("data", JSON.stringify(data));
         obj.save().then((err, data) => {
@@ -380,23 +431,27 @@ export class LineConnector extends botbuilder.ChatConnector {
                             }
 
                             let actions;
+                            let subtext="\n";
+                            let bn_c = 0;
                             tc.buttons.map((b) => {
                                 let bn = {
-                                    type: "message",
+                                    type: b.type,
                                     label: b.title,
-                                    text: b.value
+                                    text: b.value,
+                                    uri : b.value,
+                                    data : b.value
                                 }
+                                bn_c++;
+                                subtext += bn_c + "." +  b.title + "\n";
+                                // console.log(subtext)
                                 r.template.actions.push(bn)
                             });
+                            r.altText += subtext;
+                            console.log(r);
 
                             if (tc.images !== undefined) {
                                 r.template.thumbnailImageUrl = tc.images[0].url;
                             }
-                            // console.log("r0", r)
-
-
-                            // _this.reply(msg.address.useAuth, r);
-                            // return r;
                             res(r);
                     }
 

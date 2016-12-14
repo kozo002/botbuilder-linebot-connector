@@ -1,5 +1,6 @@
 "use strict";
-var demobot = require('./bot_script');
+var jokebot = require('./joke/bot_script');
+var advbot = require('./adv/bot_script');
 var parse_server_1 = require('parse-server');
 var S3Adapter = require('parse-server').S3Adapter;
 var Parse = require('parse/node');
@@ -21,7 +22,8 @@ app.listen(1337, function () {
 });
 Parse.initialize("myAppId_linebotconnector", "javascriptKey_bot");
 //you can use different bot
-app.use('/linebot0', demobot.lineConnector.listen());
+app.use('/linebot0', jokebot.lineConnector.listen());
+app.use('/advbot', advbot.lineConnector.listen());
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');
 });

@@ -1,4 +1,6 @@
-import * as demobot from './bot_script';
+import * as jokebot from './joke/bot_script';
+
+import * as advbot from './adv/bot_script';
 
 import { ParseServer } from 'parse-server';
 
@@ -34,7 +36,9 @@ app.listen(1337, function () {
 Parse.initialize("myAppId_linebotconnector", "javascriptKey_bot");
 
 //you can use different bot
-app.use('/linebot0', demobot.lineConnector.listen());
+app.use('/linebot0', jokebot.lineConnector.listen());
+app.use('/advbot', advbot.lineConnector.listen());
+
 
 app.get('*', function (req, res) {
     res.send(200, 'Hello Line Bot');

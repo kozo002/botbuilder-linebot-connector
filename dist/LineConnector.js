@@ -14,6 +14,47 @@ var fetch = require('node-fetch');
 var crypto = require('crypto');
 var url = require('url');
 var DATA = Parse.Object.extend("DATA");
+var ConfirmMessage = (function (_super) {
+    __extends(ConfirmMessage, _super);
+    function ConfirmMessage(index, option1, option2, option3) {
+        _super.call(this);
+        var ass = [];
+        var a1;
+        var a0 = new botbuilder.CardAction().title(option1.title).type(option1.type).value(option1.value);
+        ass.push(a0);
+        if (option2) {
+            a1 = new botbuilder.CardAction().title(option2.title).type(option2.type).value(option2.value);
+            ass.push(a1);
+        }
+        if (option3) {
+            var a = new botbuilder.CardAction().title(option3.title).type(option3.type).value(option3.value);
+            ass.push(a);
+        }
+        var c = new botbuilder.HeroCard().title(index.title).subtitle(index.subtitle).text(index.text);
+        c.buttons(ass);
+        this.text(index.text).addAttachment(c);
+    }
+    return ConfirmMessage;
+}(botbuilder.Message));
+exports.ConfirmMessage = ConfirmMessage;
+var BasicConfirmMessage = (function (_super) {
+    __extends(BasicConfirmMessage, _super);
+    function BasicConfirmMessage(text, option1, option2, option3) {
+        var begin = { title: text, subtitle: text, text: text };
+        var o1 = { title: option1, type: "message", value: option1 };
+        var o2;
+        if (option2) {
+            o2 = { title: option2, type: "message", value: option2 };
+        }
+        var o3;
+        if (option3) {
+            o3 = { title: option3, type: "message", value: option3 };
+        }
+        _super.call(this, begin, o1, o2, o3);
+    }
+    return BasicConfirmMessage;
+}(ConfirmMessage));
+exports.BasicConfirmMessage = BasicConfirmMessage;
 var StickerMessage = (function (_super) {
     __extends(StickerMessage, _super);
     function StickerMessage(pId, sId) {
@@ -122,6 +163,10 @@ var LineConnector = (function (_super) {
                 else if (msg.source.type === "group") {
                     mid = msg.source.groupId;
                 }
+                else if (msg.source.type === "room") {
+                    mid = msg.source.roomId;
+                }
+                //console.log("msg.source",msg.source)
                 var m = {
                     locale: 'textLocale',
                     channelData: 'sourceEvent',
@@ -308,6 +353,9 @@ var LineConnector = (function (_super) {
         if (this.obj) {
             obj = this.obj;
         }
+        // console.log("context",context);
+        // obj.set("room_type", context.address.from.name);
+        // obj.set("room_id", context.address.id);
         obj.set("channelId", context.address.channelId + "/" + this.botId);
         obj.set("data", JSON.stringify(data));
         obj.save().then(function (err, data) {
@@ -352,20 +400,26 @@ var LineConnector = (function (_super) {
                                 r_2.template.type = "confirm";
                             }
                             var actions = void 0;
+                            var subtext_1 = "\n";
+                            var bn_c_1 = 0;
                             tc.buttons.map(function (b) {
                                 var bn = {
-                                    type: "message",
+                                    type: b.type,
                                     label: b.title,
-                                    text: b.value
+                                    text: b.value,
+                                    uri: b.value,
+                                    data: b.value
                                 };
+                                bn_c_1++;
+                                subtext_1 += bn_c_1 + "." + b.title + "\n";
+                                // console.log(subtext)
                                 r_2.template.actions.push(bn);
                             });
+                            r_2.altText += subtext_1;
+                            console.log(r_2);
                             if (tc.images !== undefined) {
                                 r_2.template.thumbnailImageUrl = tc.images[0].url;
                             }
-                            // console.log("r0", r)
-                            // _this.reply(msg.address.useAuth, r);
-                            // return r;
                             res(r_2);
                     }
                 });

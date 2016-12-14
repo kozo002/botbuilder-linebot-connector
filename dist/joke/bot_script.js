@@ -17,7 +17,7 @@ var JOKE = Parse.Object.extend("JOKE");
 var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), i); };
 exports.bot.dialog('/', [
     function (s) {
-        s.send(s.library.localePath());
+        // s.send(s.library.localePath());
         if (s.userData.agree) {
             // s.send("me");
             s.beginDialog("/menu");
