@@ -1,0 +1,28 @@
+{
+   "me": "你好：我是笑話先生！我要給各位滿滿的....大平台！",
+   "begin":"笑話先生愛說笑話，也愛收集各類笑話，歡迎提供我任何笑話喔！不限文字，圖片，影片，聲音，都可以！",
+   "law":"免責聲明：笑話先生為開放式平台架構，不對內容作任何預審查！",
+   "agree" :"我同意，快說個笑話吧！",
+   "funny" : "好笑",
+   "lame" : "難笑",
+   "provide" : "提供笑話",
+   "provide_intro": "不限文字，圖片，影片，聲音，都可以！",
+   "is_this_funny":"好笑嗎？",
+   "thx": "謝謝",
+   "more":"再來一則",
+   "contact":"關於我",
+   "contact_context":"任何合作洽詢歡迎直接加作者Line id: wolkesau",
+   "feel":"覺得",
+   "default_file":"請給我檔案喔！",
+   "provide_text":"提供純文字笑話",
+   "provide_image":"提供圖片笑話",
+   "provide_video":"提供影片笑話",
+   "provide_other":"提供多媒體笑話",
+   "provide_end" :"沒靈感了",
+   "pls_provide":"請直接傳給我你的笑話吧！",
+   "do_not":"勿提供18禁的圖片，影片喔！笑話先生不喜歡這些！",
+
+   "pls":"好的！請！",
+   "thx_you_provide":"感請你的提供！",
+   "no_joke_you_read":"你讀過了我所有的笑話了！"
+}
