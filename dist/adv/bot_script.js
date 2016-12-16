@@ -2,10 +2,17 @@
 var Parse = require('parse/node');
 var LineConnector_1 = require('./../LineConnector');
 var builder = require('botbuilder');
+//adv
+// export var lineConnector = new LineConnector({
+//     channelId: "1489577982",
+//     channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
+//     channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
+// });
+//mr.q
 exports.lineConnector = new LineConnector_1.LineConnector({
-    channelId: "1489577982",
-    channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
-    channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
+    channelId: "1487296483",
+    channelSecret: "40e21b20df162705bcccc3066fde13ee",
+    channelAccessToken: "dVxAd9kcq59UXD8ANh503yB+14sWaWOH6DMLjMa8OPCpwdaeeXFHvzlQ1VH3OC/hm62Kz0w8VgcpOZdWuSGK3bD/Q1zsKXs1WIrkK9o6yACkKUASTy6fu0T6ulRSAOoamCzGDwKHAPH5aM0ohx4f4QdB04t89/1O/w1cDnyilFU="
 });
 exports.bot = new builder.UniversalBot(exports.lineConnector, {
     localizerSettings: {
@@ -25,14 +32,23 @@ exports.bot.dialog('/', [
             s.send("introduce");
             s.send("url");
             s.userData.init = true;
-        }
-        s.endDialog();
-        if (s.message.address.from.name === "user") {
-            s.beginDialog('/set_adv');
+            s.endDialog();
+            if (s.message.address.from.name === "user") {
+                s.beginDialog('/set_adv');
+            }
+            else {
+                s.send("introduce");
+                s.send("how_to_use");
+                s.beginDialog('/in_room');
+            }
         }
         else {
-            s.send("how_to_use");
-            s.beginDialog('/in_room');
+            if (s.message.address.from.name === "user") {
+                s.beginDialog('/set_adv');
+            }
+            else {
+                s.beginDialog('/in_room');
+            }
         }
     }
 ]);
@@ -91,7 +107,6 @@ exports.bot.dialog('/set_adv', [
     function (s, r) {
         // console.log(s.conversationData.adv);
         var adv = new ADV();
-        ;
         if (s.conversationData.adv) {
             adv = new ADV(s.conversationData.adv);
         }
@@ -102,9 +117,7 @@ exports.bot.dialog('/set_adv', [
             adv.save();
             s.userData.isSetAdv = true;
             s.endDialog("end");
-            if (!s.userData.isSetLindID) {
-                s.beginDialog("/set_line_id");
-            }
+            s.beginDialog("/set_line_id", adv);
         }
         else {
             var type_1 = r.response[0].type;
@@ -126,28 +139,27 @@ exports.bot.dialog('/set_adv', [
                     adv.save();
                     s.userData.isSetAdv = true;
                     s.endDialog("end");
-                    if (!s.userData.isSetLindID) {
-                        s.beginDialog("/set_line_id");
-                    }
+                    s.beginDialog("/set_line_id", adv);
                 });
             });
         }
     }
 ]);
-exports.bot.dialog("/set_line_id", [function (s) {
+exports.bot.dialog("/set_line_id", [function (s, args) {
+        var adv = args;
+        s.dialogData.adv = adv;
         exports.lineConnector.getUserProfile(s.message.address.from.id).then(function (data, err) {
-            // console.log(data)
-            var adv = new ADV(s.conversationData.adv);
             adv.set("displayName", data.displayName);
             adv.set("userId", data.userId);
             adv.set("pictureUrl", data.pictureUrl);
             adv.save();
             s.send(data.displayName);
-            builder.Prompts.text(s, "pls_set_user_id");
+            builder.Prompts.text(s, "pls_set_user_id", adv);
         });
     }, function (s, r) {
+        // console.log("r",r);
+        s.userData.lineId = r.response;
         var n = r.response + getText(s, "is_your_line_id");
-        s.userData.lineId = n;
         var s0 = getText(s, "yes");
         var s1 = getText(s, "no");
         var m = new LineConnector_1.BasicConfirmMessage(n, s0, s1);
@@ -155,12 +167,17 @@ exports.bot.dialog("/set_line_id", [function (s) {
     }, function (s, r) {
         var s0 = getText(s, "yes");
         if (r.response.entity === s0) {
-            s.userData.isSetLindID = true;
-            var adv = new ADV(s.conversationData.adv);
-            adv.set("lineId", s.userData.lineId);
-            adv.save();
-            s.endDialog("end");
-            s.beginDialog("/");
+            // s.userData.isSetLindID = true;
+            // console.log(s.dialogData.adv)
+            // let adv =s.dialogData.adv;
+            var q = new Parse.Query(ADV);
+            q.get(s.dialogData.adv.objectId).then(function (adv) {
+                // console.log(adv);
+                adv.set("lineId", s.userData.lineId);
+                adv.save();
+                s.endDialog("end");
+                s.beginDialog("/");
+            });
         }
         else {
             s.replaceDialog("/set_line_id");
@@ -168,13 +185,17 @@ exports.bot.dialog("/set_line_id", [function (s) {
     }
 ]);
 exports.bot.dialog('/in_room', [function (s) {
-        s.send("introduce");
-        builder.Prompts.text(s, "how_to_use");
-        // s.endDialog("how_to_use");
-        // s.beginDialog("loop_advs");
-    }, function (s) {
         var f = function (obj) {
+            // console.log(obj)
             if (obj !== undefined) {
+                var displayName = obj.get("displayName");
+                var lineId = obj.get("lineId");
+                if (lineId) {
+                    var sp = getText(s, "provide_by");
+                    var text = sp + " https://line.me/R/ti/p/~" + lineId;
+                    var m = new LineConnector_1.ConfirmMessage({ title: sp, subtitle: sp, text: text }, { title: displayName, type: "uri", value: "https://line.me/R/ti/p/~" + lineId });
+                    s.send(m);
+                }
                 var t = obj.get("type");
                 var f_1 = obj.get("file");
                 if (t === "text") {
@@ -186,14 +207,6 @@ exports.bot.dialog('/in_room', [function (s) {
                 }
                 else if (t === "video") {
                     var m = new LineConnector_1.VideoMessage(f_1.url(), "https://israel365.com/wp-content/uploads/2015/06/video.png");
-                    s.send(m);
-                }
-                var displayName = obj.get("displayName");
-                var lineId = obj.get("lineId");
-                if (lineId) {
-                    var sp = getText(s, "provide_by");
-                    var text = sp + " https://line.me/R/ti/p/~" + lineId;
-                    var m = new LineConnector_1.ConfirmMessage({ title: sp, subtitle: sp, text: text }, { title: displayName, type: "uri", value: "https://line.me/R/ti/p/~" + lineId });
                     s.send(m);
                 }
                 if (s.userData.findPram === "contained") {
@@ -220,7 +233,7 @@ exports.bot.dialog('/in_room', [function (s) {
             }
         };
         var q = new Parse.Query(ADV);
-        console.log(s.userData.findPram);
+        // console.log(s.userData.findPram)
         if (s.userData.findPram) {
             if (s.userData.findPram === "notContained") {
                 q.notContainedIn("read", [s.message.address.channelId]).first().then(f);

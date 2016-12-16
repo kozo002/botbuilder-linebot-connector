@@ -1,14 +1,21 @@
 import Parse = require('parse/node');
 
-import { LineConnector, StickerMessage, ImageMessage, VideoMessage, BasicConfirmMessage,ConfirmMessage } from './../LineConnector';
+import { LineConnector, StickerMessage, ImageMessage, VideoMessage, BasicConfirmMessage, ConfirmMessage } from './../LineConnector';
 
 import * as builder from 'botbuilder';
 import { Message, CardImage, UniversalBot, HeroCard, CardAction, Prompts, ConsoleConnector } from 'botbuilder';
+//adv
+// export var lineConnector = new LineConnector({
+//     channelId: "1489577982",
+//     channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
+//     channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
+// });
 
+//mr.q
 export var lineConnector = new LineConnector({
-    channelId: "1489577982",
-    channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
-    channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
+    channelId: "1487296483",
+    channelSecret: "40e21b20df162705bcccc3066fde13ee",
+    channelAccessToken: "dVxAd9kcq59UXD8ANh503yB+14sWaWOH6DMLjMa8OPCpwdaeeXFHvzlQ1VH3OC/hm62Kz0w8VgcpOZdWuSGK3bD/Q1zsKXs1WIrkK9o6yACkKUASTy6fu0T6ulRSAOoamCzGDwKHAPH5aM0ohx4f4QdB04t89/1O/w1cDnyilFU="
 });
 export var bot = new builder.UniversalBot(lineConnector,
     {
@@ -30,16 +37,23 @@ bot.dialog('/', [
         if (!s.userData.init) {
             s.send("introduce");
             s.send("url")
-            
             s.userData.init = true;
-        }
-        s.endDialog();
-        if (s.message.address.from.name === "user") {
-            s.beginDialog('/set_adv');
+            s.endDialog();
+            if (s.message.address.from.name === "user") {
+                s.beginDialog('/set_adv');
+            } else {
+                s.send("introduce");
+                s.send("how_to_use");
+                s.beginDialog('/in_room');
+            }
         } else {
-            s.send("how_to_use");
-            s.beginDialog('/in_room');
+            if (s.message.address.from.name === "user") {
+                s.beginDialog('/set_adv');
+            } else {
+                s.beginDialog('/in_room');
+            }
         }
+
     }
 ]);
 
@@ -69,11 +83,11 @@ bot.dialog('/set_adv', [
             let s0 = getText(s, "text");
             let s1 = getText(s, "attachment");
             let s2 = getText(s, "no_option");
-            
+
             let st = getText(s, "pls_choice");
 
-            let m = new BasicConfirmMessage(st, s0, s1,s2);
-            builder.Prompts.choice(s, m, [s0, s1,s2]);
+            let m = new BasicConfirmMessage(st, s0, s1, s2);
+            builder.Prompts.choice(s, m, [s0, s1, s2]);
         })
     },
     (s, r) => {
@@ -92,12 +106,12 @@ bot.dialog('/set_adv', [
             s.send("url")
             s.endDialog("end");
             s.beginDialog("/")
-            
+
         }
     },
     (s, r) => {
         // console.log(s.conversationData.adv);
-        let adv = new ADV();;
+        let adv = new ADV();
         if (s.conversationData.adv) {
             adv = new ADV(s.conversationData.adv);
             // adv.set("objectId",s.conversationData.adv.objectId);
@@ -111,9 +125,7 @@ bot.dialog('/set_adv', [
             s.userData.isSetAdv = true;
 
             s.endDialog("end");
-            if (!s.userData.isSetLindID) {
-                s.beginDialog("/set_line_id");
-            }
+            s.beginDialog("/set_line_id", adv);
         } else {
             let type = r.response[0].type;
             let mid: string = r.response[0].id;
@@ -134,9 +146,8 @@ bot.dialog('/set_adv', [
                     adv.save();
                     s.userData.isSetAdv = true;
                     s.endDialog("end");
-                    if (!s.userData.isSetLindID) {
-                        s.beginDialog("/set_line_id");
-                    }
+                    s.beginDialog("/set_line_id", adv);
+                    
                 });
             })
 
@@ -144,37 +155,47 @@ bot.dialog('/set_adv', [
     }
 ])
 
-bot.dialog("/set_line_id", [(s) => {
+bot.dialog("/set_line_id", [(s, args) => {
+    let adv = args;
+    s.dialogData.adv = adv;
+
     lineConnector.getUserProfile(s.message.address.from.id).then((data, err) => {
-        // console.log(data)
-        let adv = new ADV(s.conversationData.adv);
         adv.set("displayName", data.displayName);
         adv.set("userId", data.userId);
         adv.set("pictureUrl", data.pictureUrl);
         adv.save();
         s.send(data.displayName);
-        builder.Prompts.text(s, "pls_set_user_id");
+        builder.Prompts.text(s, "pls_set_user_id", adv);
     })
 }, (s, r) => {
+
+    // console.log("r",r);
+
+    s.userData.lineId = r.response;
     let n = r.response + getText(s, "is_your_line_id");
-    s.userData.lineId=n;
+
     let s0 = getText(s, "yes");
     let s1 = getText(s, "no");
 
     let m = new BasicConfirmMessage(n, s0, s1);
     builder.Prompts.choice(s, m, [s0, s1])
 }, (s, r) => {
-    let s0 = getText(s, "yes");
-    
-    if(r.response.entity === s0){
-        s.userData.isSetLindID = true;
-        let adv = new ADV(s.conversationData.adv);
-        adv.set("lineId",s.userData.lineId);
-        adv.save();
-        s.endDialog("end");
-        s.beginDialog("/");
 
-    }else{
+    let s0 = getText(s, "yes");
+
+    if (r.response.entity === s0) {
+        // s.userData.isSetLindID = true;
+        // console.log(s.dialogData.adv)
+        // let adv =s.dialogData.adv;
+        let q = new Parse.Query(ADV);
+        q.get(s.dialogData.adv.objectId).then((adv: Parse.Object) => {
+            // console.log(adv);
+            adv.set("lineId", s.userData.lineId);
+            adv.save();
+            s.endDialog("end");
+            s.beginDialog("/");
+        });
+    } else {
         s.replaceDialog("/set_line_id");
     }
 
@@ -183,15 +204,20 @@ bot.dialog("/set_line_id", [(s) => {
 
 
 bot.dialog('/in_room', [(s) => {
-    s.send("introduce");
-    builder.Prompts.text(s, "how_to_use")
-
-    // s.endDialog("how_to_use");
-    // s.beginDialog("loop_advs");
-}, (s) => {
-
+  
     let f = (obj: Parse.Object) => {
+        // console.log(obj)
         if (obj !== undefined) {
+            let displayName: string = obj.get("displayName");
+            let lineId: string = obj.get("lineId");
+
+            if (lineId) {
+                let sp = getText(s, "provide_by");
+                let text: string = sp + " https://line.me/R/ti/p/~" + lineId;
+                let m = new ConfirmMessage({ title: sp, subtitle: sp, text: text }, { title: displayName, type: "uri", value: "https://line.me/R/ti/p/~" + lineId })
+                s.send(m);
+            }
+
             let t: string = obj.get("type");
             let f: Parse.File = obj.get("file");
             if (t === "text") {
@@ -203,16 +229,7 @@ bot.dialog('/in_room', [(s) => {
                 let m = new VideoMessage(f.url(), "https://israel365.com/wp-content/uploads/2015/06/video.png");
                 s.send(m);
             }
-            let displayName:string =  obj.get("displayName");
-            let lineId:string = obj.get("lineId");
-            if(lineId){
-                let sp = getText(s,"provide_by");
-                let text:string = sp + " https://line.me/R/ti/p/~"+lineId;
 
-                
-                let m = new ConfirmMessage({title:sp,subtitle:sp,text:text},{title:displayName,type:"uri",value:"https://line.me/R/ti/p/~"+lineId})
-                s.send(m);
-            }
 
 
             if (s.userData.findPram === "contained") {
@@ -237,7 +254,7 @@ bot.dialog('/in_room', [(s) => {
         }
     }
     let q = new Parse.Query(ADV);
-    console.log(s.userData.findPram)
+    // console.log(s.userData.findPram)
     if (s.userData.findPram) {
         if (s.userData.findPram === "notContained") {
             q.notContainedIn("read", [s.message.address.channelId]).first().then(f)
