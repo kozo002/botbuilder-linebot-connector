@@ -3,17 +3,17 @@ var Parse = require('parse/node');
 var LineConnector_1 = require('./../LineConnector');
 var builder = require('botbuilder');
 //adv
-// export var lineConnector = new LineConnector({
-//     channelId: "1489577982",
-//     channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
-//     channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
-// });
-//mr.q
 exports.lineConnector = new LineConnector_1.LineConnector({
-    channelId: "1487296483",
-    channelSecret: "40e21b20df162705bcccc3066fde13ee",
-    channelAccessToken: "dVxAd9kcq59UXD8ANh503yB+14sWaWOH6DMLjMa8OPCpwdaeeXFHvzlQ1VH3OC/hm62Kz0w8VgcpOZdWuSGK3bD/Q1zsKXs1WIrkK9o6yACkKUASTy6fu0T6ulRSAOoamCzGDwKHAPH5aM0ohx4f4QdB04t89/1O/w1cDnyilFU="
+    channelId: "1489577982",
+    channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
+    channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
 });
+//mr.q
+// export var lineConnector = new LineConnector({
+//     channelId: "1487296483",
+//     channelSecret: "40e21b20df162705bcccc3066fde13ee",
+//     channelAccessToken: "dVxAd9kcq59UXD8ANh503yB+14sWaWOH6DMLjMa8OPCpwdaeeXFHvzlQ1VH3OC/hm62Kz0w8VgcpOZdWuSGK3bD/Q1zsKXs1WIrkK9o6yACkKUASTy6fu0T6ulRSAOoamCzGDwKHAPH5aM0ohx4f4QdB04t89/1O/w1cDnyilFU="
+// });
 exports.bot = new builder.UniversalBot(exports.lineConnector, {
     localizerSettings: {
         botLocalePath: __dirname + "/locale",
