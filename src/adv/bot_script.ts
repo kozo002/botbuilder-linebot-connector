@@ -1,4 +1,6 @@
-import Parse = require('parse/node');
+var redis = require("redis"),
+    client = redis.createClient();
+
 
 import { LineConnector, StickerMessage, ImageMessage, VideoMessage, BasicConfirmMessage, ConfirmMessage } from './../LineConnector';
 
@@ -9,7 +11,18 @@ export var lineConnector = new LineConnector({
     channelId: "1489577982",
     channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
     channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
-});
+}, (context, data, callback) => {
+    let cid = context.address.channelId;
+    client.set(cid, JSON.stringify(data));
+    callback(null);
+},
+    (context, callback) => {
+        let cid = context.address.channelId;
+        client.get(cid, function (err, data) {
+            callback(null, JSON.parse(data));
+        }
+        )
+    });
 
 //mr.q
 // export var lineConnector = new LineConnector({
@@ -147,7 +160,7 @@ bot.dialog('/set_adv', [
                     s.userData.isSetAdv = true;
                     s.endDialog("end");
                     s.beginDialog("/set_line_id", adv);
-                    
+
                 });
             })
 
@@ -204,7 +217,7 @@ bot.dialog("/set_line_id", [(s, args) => {
 
 
 bot.dialog('/in_room', [(s) => {
-  
+
     let f = (obj: Parse.Object) => {
         // console.log(obj)
         if (obj !== undefined) {

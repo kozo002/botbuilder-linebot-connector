@@ -7,8 +7,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var botbuilder = require("botbuilder");
 var bodyParser = require("body-parser");
-var Parse = require('parse/node');
-var events_1 = require('events');
+var Parse = require("parse/node");
+var events_1 = require("events");
 // import linebot = require("linebot");
 var fetch = require('node-fetch');
 var crypto = require('crypto');
@@ -17,7 +17,7 @@ var DATA = Parse.Object.extend("DATA");
 var ConfirmMessage = (function (_super) {
     __extends(ConfirmMessage, _super);
     function ConfirmMessage(index, option1, option2, option3) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         var ass = [];
         var a1;
         var a0 = new botbuilder.CardAction().title(option1.title).type(option1.type).value(option1.value);
@@ -32,7 +32,8 @@ var ConfirmMessage = (function (_super) {
         }
         var c = new botbuilder.HeroCard().title(index.title).subtitle(index.subtitle).text(index.text);
         c.buttons(ass);
-        this.text(index.text).addAttachment(c);
+        _this.text(index.text).addAttachment(c);
+        return _this;
     }
     return ConfirmMessage;
 }(botbuilder.Message));
@@ -40,6 +41,7 @@ exports.ConfirmMessage = ConfirmMessage;
 var BasicConfirmMessage = (function (_super) {
     __extends(BasicConfirmMessage, _super);
     function BasicConfirmMessage(text, option1, option2, option3) {
+        var _this;
         var begin = { title: text, subtitle: text, text: text };
         var o1 = { title: option1, type: "message", value: option1 };
         var o2;
@@ -50,7 +52,8 @@ var BasicConfirmMessage = (function (_super) {
         if (option3) {
             o3 = { title: option3, type: "message", value: option3 };
         }
-        _super.call(this, begin, o1, o2, o3);
+        _this = _super.call(this, begin, o1, o2, o3) || this;
+        return _this;
     }
     return BasicConfirmMessage;
 }(ConfirmMessage));
@@ -58,12 +61,13 @@ exports.BasicConfirmMessage = BasicConfirmMessage;
 var StickerMessage = (function (_super) {
     __extends(StickerMessage, _super);
     function StickerMessage(pId, sId) {
-        _super.call(this);
-        this.text("sticker");
-        this.addEntity({
+        var _this = _super.call(this) || this;
+        _this.text("sticker");
+        _this.addEntity({
             packageId: pId.toString(),
             stickerId: sId.toString()
         });
+        return _this;
     }
     return StickerMessage;
 }(botbuilder.Message));
@@ -71,12 +75,13 @@ exports.StickerMessage = StickerMessage;
 var ImageMessage = (function (_super) {
     __extends(ImageMessage, _super);
     function ImageMessage(url) {
-        _super.call(this);
-        this.text("image");
-        this.addEntity({
+        var _this = _super.call(this) || this;
+        _this.text("image");
+        _this.addEntity({
             originalContentUrl: url,
             previewImageUrl: url
         });
+        return _this;
     }
     return ImageMessage;
 }(botbuilder.Message));
@@ -84,12 +89,13 @@ exports.ImageMessage = ImageMessage;
 var VideoMessage = (function (_super) {
     __extends(VideoMessage, _super);
     function VideoMessage(video_url, perview_image_url) {
-        _super.call(this);
-        this.text("video");
-        this.addEntity({
+        var _this = _super.call(this) || this;
+        _this.text("video");
+        _this.addEntity({
             originalContentUrl: video_url,
             previewImageUrl: perview_image_url
         });
+        return _this;
     }
     return VideoMessage;
 }(botbuilder.Message));
@@ -97,12 +103,13 @@ exports.VideoMessage = VideoMessage;
 var AudioMessage = (function (_super) {
     __extends(AudioMessage, _super);
     function AudioMessage(url) {
-        _super.call(this);
-        this.text("audio");
-        this.addEntity({
+        var _this = _super.call(this) || this;
+        _this.text("audio");
+        _this.addEntity({
             originalContentUrl: url,
             previewImageUrl: url
         });
+        return _this;
     }
     return AudioMessage;
 }(botbuilder.Message));
@@ -110,14 +117,15 @@ exports.AudioMessage = AudioMessage;
 var LocationMessage = (function (_super) {
     __extends(LocationMessage, _super);
     function LocationMessage(title, address, latitude, longitude) {
-        _super.call(this);
-        this.text("location");
-        this.addEntity({
+        var _this = _super.call(this) || this;
+        _this.text("location");
+        _this.addEntity({
             title: title,
             address: address,
             latitude: latitude,
             longitude: longitude
         });
+        return _this;
     }
     return LocationMessage;
 }(botbuilder.Message));
@@ -125,23 +133,24 @@ exports.LocationMessage = LocationMessage;
 var LineConnector = (function (_super) {
     __extends(LineConnector, _super);
     function LineConnector(options) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         // sendProcess:Promise<any>;
-        this.sendProcess = null;
-        this.options = options || {};
-        this.options.channelId = options.channelId || '';
-        this.options.channelSecret = options.channelSecret || '';
-        this.options.channelAccessToken = options.channelAccessToken || '';
-        if (this.options.verify === undefined) {
-            this.options.verify = true;
+        _this.sendProcess = null;
+        _this.options = options || {};
+        _this.options.channelId = options.channelId || '';
+        _this.options.channelSecret = options.channelSecret || '';
+        _this.options.channelAccessToken = options.channelAccessToken || '';
+        if (_this.options.verify === undefined) {
+            _this.options.verify = true;
         }
-        this.headers = {
+        _this.headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + this.options.channelAccessToken
+            Authorization: 'Bearer ' + _this.options.channelAccessToken
         };
-        this.endpoint = 'https://api.line.me/v2/bot';
-        this.botId = options.channelId;
+        _this.endpoint = 'https://api.line.me/v2/bot';
+        _this.botId = options.channelId;
+        return _this;
     }
     LineConnector.prototype.verify = function (rawBody, signature) {
         var hash = crypto.createHmac('sha256', this.options.channelSecret)
@@ -190,7 +199,7 @@ var LineConnector = (function (_super) {
                         useAuth: msg.replyToken
                     },
                     source: mid,
-                    text: msg.message.text,
+                    stext: msg.message.text,
                     res: res,
                 };
                 if (msg.message.type !== "text") {

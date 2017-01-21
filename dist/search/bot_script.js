@@ -1,6 +1,6 @@
 "use strict";
-var LineConnector_1 = require('./../LineConnector');
-var builder = require('botbuilder');
+var LineConnector_1 = require("./../LineConnector");
+var builder = require("botbuilder");
 exports.lineConnector = new LineConnector_1.LineConnector({
     channelId: "1487296483",
     channelSecret: "40e21b20df162705bcccc3066fde13ee",

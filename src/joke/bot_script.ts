@@ -1,4 +1,6 @@
-import Parse = require('parse/node');
+var redis = require("redis"),
+    client = redis.createClient();
+
 
 import { LineConnector, StickerMessage, ImageMessage, VideoMessage } from './../LineConnector';
 
@@ -8,8 +10,19 @@ import { Message, CardImage, UniversalBot, HeroCard, CardAction, Prompts, Consol
 export var lineConnector = new LineConnector({
     channelId: "1490090330",
     channelSecret: "b07f4fdc3a32d56c277b4b4b09d0876c",
-    channelAccessToken: "EUupZ8DuplDAVoDH32DCaV+u6TTpq7uwQKTnFnT3zQaxpIUjUJomJ5CtGvJf3Z/pvWtVg+YhftWWQDfXIrSzgNAUuKeflOaezW2XRUgI61HlVrad7OP8TgXFnzFydJ6g8O3BsHmSYYwY7wqbczw57AdB04t89/1O/w1cDnyilFU="
-});
+    channelAccessToken: "EUupZ8DuplDAVoDH32DCaV+u6TTpq7uwQKTnFnT3zQaxpIUjUJomJ5CtGvJf3Z/pvWtVg+YhftWWQDfXIrSzgNAUuKeflOaezW2XRUgI61HlVrad7OP8TgXFnzFydJ6g8O3BsHmSYYwY7wqbczw57AdB04t89/1O/w1cDnyilFU=",
+, (context, data, callback) => {
+    let cid = context.address.channelId;
+    client.set(cid, JSON.stringify(data));
+    callback(null);
+},
+    (context, callback) => {
+        let cid = context.address.channelId;
+        client.get(cid, function (err, data) {
+            callback(null, JSON.parse(data));
+        }
+        )
+    });
 export var bot = new builder.UniversalBot(lineConnector,
     {
         localizerSettings: {

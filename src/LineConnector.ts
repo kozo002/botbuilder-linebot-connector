@@ -108,7 +108,7 @@ export class LocationMessage extends botbuilder.Message {
     }
 }
 
-export class LineConnector extends botbuilder.ChatConnector {
+export class LineConnector implements botbuilder.IConnector {
     botId;
     options;
     headers;
@@ -116,8 +116,14 @@ export class LineConnector extends botbuilder.ChatConnector {
     handler;
     event;
     obj;
-    constructor(options) {
-        super();
+    saveData;
+    getData;
+    constructor(options,
+        saveData: any,
+        getData: any) {
+        this.saveData = saveData;
+        this.getData = getData;
+
         this.options = options || {};
         this.options.channelId = options.channelId || '';
         this.options.channelSecret = options.channelSecret || '';
@@ -158,6 +164,7 @@ export class LineConnector extends botbuilder.ChatConnector {
                 //console.log("msg.source",msg.source)
 
                 let m = {
+                    text: "",
                     locale: 'textLocale',
                     channelData: 'sourceEvent',
                     user: {
@@ -181,7 +188,7 @@ export class LineConnector extends botbuilder.ChatConnector {
 
                     },
                     source: mid,
-                    text: msg.message.text,
+                    stext: msg.message.text,
                     res: res,
                 };
 
@@ -354,46 +361,6 @@ export class LineConnector extends botbuilder.ChatConnector {
         })
     }
 
-    getData(context, callback) {
-        var _this = this;
-        let cid = context.address.channelId + "/" + this.botId;
-        let query = new Parse.Query(DATA);
-        query.equalTo("channelId", cid).first().then((obj: Parse.Object) => {
-            if (obj !== undefined) {
-                _this.obj = obj;
-                var d: string = obj.get("data");
-                var data = JSON.parse(d);
-                callback(null, data);
-            } else {
-                callback(null, null);
-            }
-        })
-    }
-    saveData(context, data, callback) {
-        let cid = context.address.channelId + "/" + this.botId;
-        let query = new Parse.Query(DATA);
-        query.equalTo("channelId", cid).first().then((obj: Parse.Object) => {
-
-            if (obj === undefined) {
-                obj = new DATA();
-            }
-            obj.set("channelId", context.address.channelId + "/" + this.botId)
-            obj.set("data", JSON.stringify(data));
-            obj.save().then((err, data) => {
-                // console.log("saveData 2", err, data)
-                callback(null)
-            });
-        })
-
-
-
-        // console.log("context",context);
-        // obj.set("room_type", context.address.from.name);
-        // obj.set("room_id", context.address.id);
-
-
-
-    }
 
     getRenderTemplate(msg): Promise<any> {
 
@@ -514,5 +481,12 @@ export class LineConnector extends botbuilder.ChatConnector {
         // this.reply()
 
     }
+    startConversation(address, callback) {
+        console.log(address);
+        console.log(callback);
+
+
+    }
+
 
 }

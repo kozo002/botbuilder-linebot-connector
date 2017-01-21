@@ -1,11 +1,11 @@
 "use strict";
-var jokebot = require('./joke/bot_script');
-var advbot = require('./adv/bot_script');
-var searchbot = require('./search/bot_script');
-var parse_server_1 = require('parse-server');
+var jokebot = require("./joke/bot_script");
+var advbot = require("./adv/bot_script");
+var searchbot = require("./search/bot_script");
+var parse_server_1 = require("parse-server");
 var S3Adapter = require('parse-server').S3Adapter;
-var Parse = require('parse/node');
-var express = require('express');
+var Parse = require("parse/node");
+var express = require("express");
 var api = new parse_server_1.ParseServer({
     databaseURI: 'mongodb://localhost:27017/linebotconnector',
     appId: 'myAppId_linebotconnector',

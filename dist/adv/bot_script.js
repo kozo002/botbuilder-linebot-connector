@@ -1,7 +1,7 @@
 "use strict";
-var Parse = require('parse/node');
-var LineConnector_1 = require('./../LineConnector');
-var builder = require('botbuilder');
+var Parse = require("parse/node");
+var LineConnector_1 = require("./../LineConnector");
+var builder = require("botbuilder");
 //adv
 exports.lineConnector = new LineConnector_1.LineConnector({
     channelId: "1489577982",
