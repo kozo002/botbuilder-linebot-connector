@@ -1,6 +1,6 @@
-import * as jokebot from './joke/bot_script';
+// import * as jokebot from './joke/bot_script';
 
-import * as advbot from './adv/bot_script';
+// import * as advbot from './adv/bot_script';
 
 import * as searchbot from './search/bot_script';
 
@@ -12,12 +12,9 @@ import * as builder from 'botbuilder';
 
 
 var app = express();
-
-Parse.initialize("myAppId_linebotconnector", "javascriptKey_bot");
-
-//you can use different bot
-app.use('/linebot0', jokebot.lineConnector.listen());
-app.use('/advbot', advbot.lineConnector.listen());
+// //you can use different bot
+// app.use('/linebot0', jokebot.lineConnector.listen());
+// app.use('/advbot', advbot.lineConnector.listen());
 app.use('/searchbot', searchbot.lineConnector.listen());
 
 

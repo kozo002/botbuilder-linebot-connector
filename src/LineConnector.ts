@@ -118,6 +118,7 @@ export class LineConnector implements botbuilder.IConnector {
     obj;
     saveData;
     getData;
+    replyToken;
     constructor(options,
         saveData: any,
         getData: any) {
@@ -162,6 +163,7 @@ export class LineConnector implements botbuilder.IConnector {
                     mid = msg.source.roomId
                 }
                 //console.log("msg.source",msg.source)
+                _this.replyToken =  msg.replyToken;
 
                 let m = {
                     text: "",
@@ -332,7 +334,7 @@ export class LineConnector implements botbuilder.IConnector {
         messages.map((msg) => {
             // console.log("msg", msg)
             if (_this.sendProcess === null) {
-                _this.sendProcess = P(msg.address.useAuth);
+                _this.sendProcess = P(_this.replyToken );
             }
             if (msg.attachments !== undefined) {
                 // _this.renderAttachment(msg);

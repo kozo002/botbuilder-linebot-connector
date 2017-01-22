@@ -130,27 +130,26 @@ var LocationMessage = (function (_super) {
     return LocationMessage;
 }(botbuilder.Message));
 exports.LocationMessage = LocationMessage;
-var LineConnector = (function (_super) {
-    __extends(LineConnector, _super);
-    function LineConnector(options) {
-        var _this = _super.call(this) || this;
+var LineConnector = (function () {
+    function LineConnector(options, saveData, getData) {
         // sendProcess:Promise<any>;
-        _this.sendProcess = null;
-        _this.options = options || {};
-        _this.options.channelId = options.channelId || '';
-        _this.options.channelSecret = options.channelSecret || '';
-        _this.options.channelAccessToken = options.channelAccessToken || '';
-        if (_this.options.verify === undefined) {
-            _this.options.verify = true;
+        this.sendProcess = null;
+        this.saveData = saveData;
+        this.getData = getData;
+        this.options = options || {};
+        this.options.channelId = options.channelId || '';
+        this.options.channelSecret = options.channelSecret || '';
+        this.options.channelAccessToken = options.channelAccessToken || '';
+        if (this.options.verify === undefined) {
+            this.options.verify = true;
         }
-        _this.headers = {
+        this.headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + _this.options.channelAccessToken
+            Authorization: 'Bearer ' + this.options.channelAccessToken
         };
-        _this.endpoint = 'https://api.line.me/v2/bot';
-        _this.botId = options.channelId;
-        return _this;
+        this.endpoint = 'https://api.line.me/v2/bot';
+        this.botId = options.channelId;
     }
     LineConnector.prototype.verify = function (rawBody, signature) {
         var hash = crypto.createHmac('sha256', this.options.channelSecret)
@@ -176,7 +175,9 @@ var LineConnector = (function (_super) {
                     mid = msg.source.roomId;
                 }
                 //console.log("msg.source",msg.source)
+                _this.replyToken = msg.replyToken;
                 var m = {
+                    text: "",
                     locale: 'textLocale',
                     channelData: 'sourceEvent',
                     user: {
@@ -308,7 +309,7 @@ var LineConnector = (function (_super) {
         messages.map(function (msg) {
             // console.log("msg", msg)
             if (_this.sendProcess === null) {
-                _this.sendProcess = P(msg.address.useAuth);
+                _this.sendProcess = P(_this.replyToken);
             }
             if (msg.attachments !== undefined) {
                 // _this.renderAttachment(msg);
@@ -340,41 +341,6 @@ var LineConnector = (function (_super) {
                 }
             }
         });
-    };
-    LineConnector.prototype.getData = function (context, callback) {
-        var _this = this;
-        var cid = context.address.channelId + "/" + this.botId;
-        var query = new Parse.Query(DATA);
-        query.equalTo("channelId", cid).first().then(function (obj) {
-            if (obj !== undefined) {
-                _this.obj = obj;
-                var d = obj.get("data");
-                var data = JSON.parse(d);
-                callback(null, data);
-            }
-            else {
-                callback(null, null);
-            }
-        });
-    };
-    LineConnector.prototype.saveData = function (context, data, callback) {
-        var _this = this;
-        var cid = context.address.channelId + "/" + this.botId;
-        var query = new Parse.Query(DATA);
-        query.equalTo("channelId", cid).first().then(function (obj) {
-            if (obj === undefined) {
-                obj = new DATA();
-            }
-            obj.set("channelId", context.address.channelId + "/" + _this.botId);
-            obj.set("data", JSON.stringify(data));
-            obj.save().then(function (err, data) {
-                // console.log("saveData 2", err, data)
-                callback(null);
-            });
-        });
-        // console.log("context",context);
-        // obj.set("room_type", context.address.from.name);
-        // obj.set("room_id", context.address.id);
     };
     LineConnector.prototype.getRenderTemplate = function (msg) {
         var _this = this;
@@ -480,6 +446,10 @@ var LineConnector = (function (_super) {
         // if(msg.attachments)
         // this.reply()
     };
+    LineConnector.prototype.startConversation = function (address, callback) {
+        console.log(address);
+        console.log(callback);
+    };
     return LineConnector;
-}(botbuilder.ChatConnector));
+}());
 exports.LineConnector = LineConnector;

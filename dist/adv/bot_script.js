@@ -1,5 +1,5 @@
 "use strict";
-var Parse = require("parse/node");
+var redis = require("redis"), client = redis.createClient();
 var LineConnector_1 = require("./../LineConnector");
 var builder = require("botbuilder");
 //adv
@@ -7,6 +7,15 @@ exports.lineConnector = new LineConnector_1.LineConnector({
     channelId: "1489577982",
     channelSecret: "1752cff54cf3db3a9f4a4bdd6165a18c",
     channelAccessToken: "W5cNdbwKSLS86soxGjnxpzIPZgm3orCWVZuOkU5YBVqZ6nFctxxZLYE9a5UWJ9gL5yz0lnEnH9tld/B8e49PPRQEhyMnBnxUmPr6hXvxId0zrj4S675kQIjsVlkzY97ShKM+kyXAkpqRS2ZcAQkMVwdB04t89/1O/w1cDnyilFU="
+}, function (context, data, callback) {
+    var cid = context.address.channelId;
+    client.set(cid, JSON.stringify(data));
+    callback(null);
+}, function (context, callback) {
+    var cid = context.address.channelId;
+    client.get(cid, function (err, data) {
+        callback(null, JSON.parse(data));
+    });
 });
 //mr.q
 // export var lineConnector = new LineConnector({

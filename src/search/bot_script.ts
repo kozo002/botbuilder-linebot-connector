@@ -2,7 +2,11 @@ var redis = require("redis"),
     client = redis.createClient();
 
 
-import { LineConnector, StickerMessage, ImageMessage, VideoMessage } from './../LineConnector';
+import {
+    LineConnector, StickerMessage, ImageMessage, VideoMessage,//mp4 only
+    BasicConfirmMessage, ConfirmMessage
+} from './../LineConnector';
+
 
 import * as builder from 'botbuilder';
 import { Message, CardImage, UniversalBot, HeroCard, CardAction, Prompts, ConsoleConnector } from 'botbuilder';
@@ -14,6 +18,7 @@ export var lineConnector = new LineConnector({
 }, (context, data, callback) => {
     let cid = context.address.channelId;
     client.set(cid, JSON.stringify(data));
+
     callback(null);
 },
     (context, callback) => {
@@ -32,24 +37,15 @@ google.resultsPerPage = 1
 var nextCounter = 0
 
 bot.dialog('/', [
-    function (s, r) {
-        console.log("s.message.attachments", s.message.attachments.length)
-        if (s.message.attachments.length === 0) {
-            google(s.message.text, function (err, res) {
-                if (err) console.error(err)
-                for (var i = 0; i < res.links.length; ++i) {
-                    var link = res.links[i];
-                    console.log(link)
-                    if (link) {
-                        s.send(link.title)
-                    }
-                }
-                if (nextCounter < 4) {
-                    nextCounter += 1
-                    if (res.next) res.next()
-                }
-            })
-        }
+    (s) => {
+        // s.beginDialog('/a');
+        builder.Prompts.choice(s, "number?",["1","2"]);
+    },
+    (s, r) => {
+        s.send("ok")
+        let o = r.response;
+        console.log(o)
+        s.endDialog(o)
 
     }
 ]);

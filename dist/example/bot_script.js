@@ -1,10 +1,20 @@
 "use strict";
+var redis = require("redis"), client = redis.createClient();
 var LineConnector_1 = require("./../LineConnector");
 var builder = require("botbuilder");
 exports.lineConnector = new LineConnector_1.LineConnector({
     channelId: "1490090330",
     channelSecret: "b07f4fdc3a32d56c277b4b4b09d0876c",
     channelAccessToken: "EUupZ8DuplDAVoDH32DCaV+u6TTpq7uwQKTnFnT3zQaxpIUjUJomJ5CtGvJf3Z/pvWtVg+YhftWWQDfXIrSzgNAUuKeflOaezW2XRUgI61HlVrad7OP8TgXFnzFydJ6g8O3BsHmSYYwY7wqbczw57AdB04t89/1O/w1cDnyilFU="
+}, function (context, data, callback) {
+    var cid = context.address.channelId;
+    client.set(cid, JSON.stringify(data));
+    callback(null);
+}, function (context, callback) {
+    var cid = context.address.channelId;
+    client.get(cid, function (err, data) {
+        callback(null, JSON.parse(data));
+    });
 });
 exports.bot = new builder.UniversalBot(exports.lineConnector, {
     localizerSettings: {
