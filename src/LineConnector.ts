@@ -10,7 +10,7 @@ const fetch = require('node-fetch');
 const crypto = require('crypto');
 var url = require('url');
 
-var DATA = Parse.Object.extend("DATA");
+// var DATA = Parse.Object.extend("DATA");
 
 
 export class ConfirmMessage extends botbuilder.Message {
@@ -166,16 +166,7 @@ export class LineConnector implements botbuilder.IConnector {
                 _this.replyToken =  msg.replyToken;
 
                 let m = {
-                    text: "",
-                    locale: 'textLocale',
-                    channelData: 'sourceEvent',
-                    user: {
-                        id: mid,
-                        name: "user"
-                    },
-                    getUserProfile: mid,
-                    attachments: msg.attachments || [],
-                    entities: msg.entities || [],
+                    type:'message',
                     address: {
                         id: mid,
                         channelId: "line:" + mid,
@@ -187,16 +178,28 @@ export class LineConnector implements botbuilder.IConnector {
                         recipient: 'bot',
                         serviceUrl: _this.endpoint,
                         useAuth: msg.replyToken
-
                     },
+
+                    locale: 'textLocale',
+                    channelData: 'sourceEvent',
+                    user: {
+                        id: mid,
+                        name: "user"
+                    },
+                    getUserProfile: mid,
+                    attachments: msg.attachments || [],
+                    entities: msg.entities || [],
+                    
                     source: mid,
-                    stext: msg.message.text,
-                    res: res,
+                    text: msg.message.text,
                 };
 
 
+
                 if (msg.message.type !== "text") {
-                    m.text = msg.message.type;
+                    // m.text = msg.message.type;
+                    m.type = msg.message.type;
+                    
                     m.attachments = [msg.message]
                     // if(msg.message.type==="image"){
                     //     m.attachments= [{"type":"image","id":msg.message.id}];
@@ -345,15 +348,15 @@ export class LineConnector implements botbuilder.IConnector {
                 });
             } else {
                 // console.log("msg",msg)
-                if (msg.text === "sticker" && msg.entities) {
+                if (msg.type === "sticker" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
-                } else if (msg.text === "image" && msg.entities) {
+                } else if (msg.type === "image" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'image', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
-                } else if (msg.text === "video" && msg.entities) {
+                } else if (msg.type === "video" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'video', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
-                } else if (msg.text === "audio" && msg.entities) {
+                } else if (msg.type === "audio" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'audio', originalContentUrl: msg.entities[0].originalContentUrl, duration: msg.entities[0].duration });
-                } else if (msg.text === "location" && msg.entities) {
+                } else if (msg.type === "location" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'location', title: msg.entities[0].title, address: msg.entities[0].address, latitude: msg.entities[0].latitude, longitude: msg.entities[0].longitude });
                 } else {
                     _this.sendProcess.emit("add", { type: 'text', text: msg.text });

@@ -29,6 +29,8 @@ export var lineConnector = new LineConnector({
         )
     });
 
+export var console_connector = new builder.ConsoleConnector().listen();
+
 export var bot = new builder.UniversalBot(lineConnector);
 
 var google = require('google')
@@ -39,13 +41,13 @@ var nextCounter = 0
 bot.dialog('/', [
     (s) => {
         // s.beginDialog('/a');
+        // s.send(new StickerMessage(1, 403));
+        
         builder.Prompts.choice(s, "number?",["1","2"]);
     },
     (s, r) => {
-        s.send("ok")
-        let o = r.response;
-        console.log(o)
-        s.endDialog(o)
+        let o = r.response.entity;
+        s.endDialog("you select:" + o)
 
     }
 ]);

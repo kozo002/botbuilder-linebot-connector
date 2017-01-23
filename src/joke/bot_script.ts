@@ -11,11 +11,12 @@ export var lineConnector = new LineConnector({
     channelId: "1490090330",
     channelSecret: "b07f4fdc3a32d56c277b4b4b09d0876c",
     channelAccessToken: "EUupZ8DuplDAVoDH32DCaV+u6TTpq7uwQKTnFnT3zQaxpIUjUJomJ5CtGvJf3Z/pvWtVg+YhftWWQDfXIrSzgNAUuKeflOaezW2XRUgI61HlVrad7OP8TgXFnzFydJ6g8O3BsHmSYYwY7wqbczw57AdB04t89/1O/w1cDnyilFU=",
-, (context, data, callback) => {
-    let cid = context.address.channelId;
-    client.set(cid, JSON.stringify(data));
-    callback(null);
-},
+}
+    , (context, data, callback) => {
+        let cid = context.address.channelId;
+        client.set(cid, JSON.stringify(data));
+        callback(null);
+    },
     (context, callback) => {
         let cid = context.address.channelId;
         client.get(cid, function (err, data) {
@@ -69,8 +70,8 @@ bot.dialog("/joke", [
                 return;
             }
             if (obj === undefined) {
-                   s.send(new StickerMessage(1, 403));
-             
+                s.send(new StickerMessage(1, 403));
+
                 s.send("no_joke_you_read");
                 s.endDialog();
                 s.beginDialog("/menu");
@@ -208,23 +209,23 @@ bot.dialog("/provide", [
         let e = r.response.entity;
         switch (e) {
             case st:
-                
+
                 s.beginDialog("/provide_text");
 
                 break;
             case si:
-                
+
                 s.beginDialog("/provide_image");
 
                 break;
             case sv:
-            s.send(new StickerMessage(1, 4));
-                
+                s.send(new StickerMessage(1, 4));
+
                 s.beginDialog("/provide_video");
 
                 break;
             case se:
-                
+
                 s.send(new StickerMessage(1, 4));
                 s.beginDialog("/");
         }

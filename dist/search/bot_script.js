@@ -16,6 +16,7 @@ exports.lineConnector = new LineConnector_1.LineConnector({
         callback(null, JSON.parse(data));
     });
 });
+exports.console_connector = new builder.ConsoleConnector().listen();
 exports.bot = new builder.UniversalBot(exports.lineConnector);
 var google = require('google');
 google.resultsPerPage = 1;
@@ -23,12 +24,11 @@ var nextCounter = 0;
 exports.bot.dialog('/', [
     function (s) {
         // s.beginDialog('/a');
+        // s.send(new StickerMessage(1, 403));
         builder.Prompts.choice(s, "number?", ["1", "2"]);
     },
     function (s, r) {
-        s.send("ok");
-        var o = r.response;
-        console.log(o);
-        s.endDialog(o);
+        var o = r.response.entity;
+        s.endDialog("you select:" + o);
     }
 ]);
