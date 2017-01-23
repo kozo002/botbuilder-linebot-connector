@@ -1,3 +1,4 @@
+import { bot } from './../example/bot_script';
 var redis = require("redis"),
     client = redis.createClient();
 
@@ -63,16 +64,19 @@ bot.dialog('/b', [
             let af = new builder.CardAction().title(s1).type("message").value(s1);
             let s2 = getText(s, "lame");
             let al = new builder.CardAction().title(s2).type("message").value(s2);
-            let c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
+            let img = new builder.CardImage().url("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png");
+            let c = new builder.HeroCard().images([img]).title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
             let m = new builder.Message().text("is_this_funny").addAttachment(c);
             builder.Prompts.choice(s, m, [s1, s2])
-       
     },
     (s, r) => {
-        
+         s.send(new StickerMessage(1, 401));
+        s.send(new StickerMessage(1, 402));
+       
         let o = r.response.entity;
         s.endDialog("you select:" + o);
     }
 ]);
+
 
 

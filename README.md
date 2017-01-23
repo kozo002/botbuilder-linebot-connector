@@ -23,13 +23,13 @@ $ npm install botbuilder-linebot-connector --save
 #usage
 start your redis first!
 ```bash
+
+var express = require("express");
+var botbuilder = require("botbuilder");
+
 var redis = require("redis"),
     client = redis.createClient();
 
-
-
-import * as express from 'express';
-import * as builder from 'botbuilder';
 var LineConnector = require( "botbuilder-linebot-connector");
 
 var lineConnector = new LineConnector.LineConnector({
@@ -47,7 +47,7 @@ var lineConnector = new LineConnector.LineConnector({
             callback(null, JSON.parse(data));
         }
         )
-    }Ï);
+    });
 var bot = new builder.UniversalBot(lineConnector);
 let getText = (s, i) => { return s.localizer.gettext(s.preferredLocale(), i) };
 
@@ -62,8 +62,8 @@ bot.dialog('/', [
 
 bot.dialog('/a', [
     (s) => {
-        s.send(new StickerMessage(1, 403));
-        s.send(new ImageMessage("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png")); //https only
+        s.send(new LineConnector.StickerMessage(1, 403));
+        s.send(new LineConnector.ImageMessage("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png")); //https only
 
         builder.Prompts.choice(s, "number?", ["1", "2"]);
     },

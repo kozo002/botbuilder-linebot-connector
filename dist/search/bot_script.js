@@ -1,4 +1,5 @@
 "use strict";
+var bot_script_1 = require("./../example/bot_script");
 var redis = require("redis"), client = redis.createClient();
 var LineConnector_1 = require("./../LineConnector");
 var builder = require("botbuilder");
@@ -44,11 +45,14 @@ exports.bot.dialog('/b', [
         var af = new builder.CardAction().title(s1).type("message").value(s1);
         var s2 = getText(s, "lame");
         var al = new builder.CardAction().title(s2).type("message").value(s2);
-        var c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
+        var img = new builder.CardImage().url("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png");
+        var c = new builder.HeroCard().images([img]).title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
         var m = new builder.Message().text("is_this_funny").addAttachment(c);
         builder.Prompts.choice(s, m, [s1, s2]);
     },
     function (s, r) {
+        s.send(new LineConnector_1.StickerMessage(1, 401));
+        s.send(new LineConnector_1.StickerMessage(1, 402));
         var o = r.response.entity;
         s.endDialog("you select:" + o);
     }
