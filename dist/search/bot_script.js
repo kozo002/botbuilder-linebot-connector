@@ -18,14 +18,35 @@ exports.lineConnector = new LineConnector_1.LineConnector({
 });
 exports.console_connector = new builder.ConsoleConnector().listen();
 exports.bot = new builder.UniversalBot(exports.lineConnector);
-var google = require('google');
-google.resultsPerPage = 1;
-var nextCounter = 0;
+var getText = function (s, i) { return s.localizer.gettext(s.preferredLocale(), i); };
 exports.bot.dialog('/', [
     function (s) {
-        // s.beginDialog('/a');
-        // s.send(new StickerMessage(1, 403));
+        s.beginDialog('/a');
+    },
+    function (s) {
+        s.beginDialog('/b');
+    }
+]);
+exports.bot.dialog('/a', [
+    function (s) {
+        s.send(new LineConnector_1.StickerMessage(1, 403));
+        s.send(new LineConnector_1.ImageMessage("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png")); //https only
         builder.Prompts.choice(s, "number?", ["1", "2"]);
+    },
+    function (s, r) {
+        var o = r.response.entity;
+        s.endDialog("you select:" + o);
+    }
+]);
+exports.bot.dialog('/b', [
+    function (s) {
+        var s1 = getText(s, "funny");
+        var af = new builder.CardAction().title(s1).type("message").value(s1);
+        var s2 = getText(s, "lame");
+        var al = new builder.CardAction().title(s2).type("message").value(s2);
+        var c = new builder.HeroCard().title(getText(s, "is_this_funny")).subtitle(getText(s, "is_this_funny")).text(getText(s, "is_this_funny")).buttons([af, al]);
+        var m = new builder.Message().text("is_this_funny").addAttachment(c);
+        builder.Prompts.choice(s, m, [s1, s2]);
     },
     function (s, r) {
         var o = r.response.entity;

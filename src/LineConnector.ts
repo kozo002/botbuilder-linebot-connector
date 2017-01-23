@@ -348,15 +348,15 @@ export class LineConnector implements botbuilder.IConnector {
                 });
             } else {
                 // console.log("msg",msg)
-                if (msg.type === "sticker" && msg.entities) {
+                if (msg.text === "sticker" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'sticker', packageId: msg.entities[0].packageId, stickerId: msg.entities[0].stickerId });
-                } else if (msg.type === "image" && msg.entities) {
+                } else if (msg.text === "image" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'image', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
-                } else if (msg.type === "video" && msg.entities) {
+                } else if (msg.text === "video" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'video', originalContentUrl: msg.entities[0].originalContentUrl, previewImageUrl: msg.entities[0].previewImageUrl });
-                } else if (msg.type === "audio" && msg.entities) {
+                } else if (msg.text === "audio" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'audio', originalContentUrl: msg.entities[0].originalContentUrl, duration: msg.entities[0].duration });
-                } else if (msg.type === "location" && msg.entities) {
+                } else if (msg.text === "location" && msg.entities) {
                     _this.sendProcess.emit("add", { type: 'location', title: msg.entities[0].title, address: msg.entities[0].address, latitude: msg.entities[0].latitude, longitude: msg.entities[0].longitude });
                 } else {
                     _this.sendProcess.emit("add", { type: 'text', text: msg.text });
