@@ -163,6 +163,7 @@ var LineConnector = (function () {
         }
         body.events.forEach(function (msg) {
             try {
+                console.log(msg);
                 var mid = "";
                 if (msg.source.type === "user") {
                     mid = msg.source.userId;
@@ -173,6 +174,10 @@ var LineConnector = (function () {
                 else if (msg.source.type === "room") {
                     mid = msg.source.roomId;
                 }
+                _this.groupId = mid;
+                _this.groupType = msg.source.type;
+                _this.messageId = msg.message.id;
+                _this.messageType = msg.message.type;
                 //console.log("msg.source",msg.source)
                 _this.replyToken = msg.replyToken;
                 var m = {
@@ -195,7 +200,7 @@ var LineConnector = (function () {
                         id: mid,
                         name: "user"
                     },
-                    getUserProfile: mid,
+                    // getUserProfile: mid,
                     attachments: msg.attachments || [],
                     entities: msg.entities || [],
                     source: mid,
@@ -205,6 +210,18 @@ var LineConnector = (function () {
                     // m.text = msg.message.type;
                     m.type = msg.message.type;
                     m.attachments = [msg.message];
+                    if (msg.message.type === "image") {
+                        m.attachments = [{ "type": "image", "id": msg.message.id }];
+                    }
+                    else if (msg.message.type === "video") {
+                        m.attachments = [{ "type": "video", "id": msg.message.id }];
+                    }
+                    else if (msg.message.type === "audio") {
+                        m.attachments = [{ "type": "audio", "id": msg.message.id }];
+                    }
+                    else if (msg.message.type === "location") {
+                        m.attachments = [{ "type": "location", "id": msg.message.id }];
+                    }
                 }
                 msg = m;
                 // let fs = require("fs");
@@ -260,14 +277,34 @@ var LineConnector = (function () {
         console.log("get", path);
         return fetch(this.endpoint + path, { method: 'GET', headers: this.headers });
     };
-    LineConnector.prototype.getUserProfile = function (userId) {
-        return this.get('/profile/' + userId).then(function (res) {
+    LineConnector.prototype.getUserProfile = function () {
+        var url = '/profile/' + this.groupId;
+        return this.get(url).then(function (res) {
             return res.json();
         });
     };
-    LineConnector.prototype.getMessageContent = function (messageId) {
-        return this.get('/message/' + messageId + '/content/').then(function (res) {
+    LineConnector.prototype.getMessageType = function () {
+        return this.messageType;
+    };
+    LineConnector.prototype.getMessageContent = function () {
+        var _this = this;
+        return this.get('/message/' + this.messageId + '/content/').then(function (res) {
             return res.buffer();
+        });
+    };
+    LineConnector.prototype.leave = function () {
+        var url = '';
+        if (this.groupType === "group") {
+            url = '/group/' + this.groupId + '/leave';
+        }
+        else if (this.groupType === "room") {
+            url = '/room/' + this.groupId + '/leave';
+        }
+        var body = {
+            replyToken: this.replyToken,
+        };
+        return this.post(url, body).then(function (res) {
+            return res.json();
         });
     };
     LineConnector.prototype.post = function (path, body) {

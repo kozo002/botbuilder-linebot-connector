@@ -1,5 +1,4 @@
 "use strict";
-var bot_script_1 = require("./../example/bot_script");
 var redis = require("redis"), client = redis.createClient();
 var LineConnector_1 = require("./../LineConnector");
 var builder = require("botbuilder");
@@ -26,6 +25,12 @@ exports.bot.dialog('/', [
     },
     function (s) {
         s.beginDialog('/b');
+    },
+    function (s) {
+        s.beginDialog('/message');
+    },
+    function (s) {
+        s.beginDialog('/leave');
     }
 ]);
 exports.bot.dialog('/a', [
@@ -55,5 +60,26 @@ exports.bot.dialog('/b', [
         s.send(new LineConnector_1.StickerMessage(1, 402));
         var o = r.response.entity;
         s.endDialog("you select:" + o);
+    }
+]);
+exports.bot.dialog('/message', [
+    function (s) {
+        builder.Prompts.attachment(s, "give me a message text/video/image/audio");
+    },
+    function (s, r) {
+        exports.lineConnector.getMessageContent().then(function (data, err) {
+            if (data) {
+                var d1 = Array.prototype.slice.call(new Buffer(data), 0);
+                var f_type = exports.lineConnector.getMessageType();
+                console.log(d1);
+            }
+        });
+    }
+]);
+exports.bot.dialog('/leave', [
+    function (s) {
+        exports.lineConnector.leave().then(function (d) {
+            console.log(d);
+        });
     }
 ]);

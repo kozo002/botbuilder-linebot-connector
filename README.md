@@ -21,6 +21,8 @@ $ npm install botbuilder-linebot-connector --save
 
 
 #usage
+[![demo video](https://img.youtube.com/vi/VID/0.jpg)](https://www.youtube.com/watch?v=VID)
+
 start your redis first!
 ```bash
 
@@ -89,6 +91,42 @@ bot.dialog('/b', [
         let o = r.response.entity;
         s.endDialog("you select:" + o);
     }
+]);
+
+
+
+
+bot.dialog('/message', [
+    (s) => {
+        builder.Prompts.attachment(s, "give me a message text/video/image/audio");
+    },
+    (s,r)=>{
+        
+         lineConnector.getMessageContent().then( (data, err) => {
+            if (data) {
+                let d1 = Array.prototype.slice.call(new Buffer(data), 0)
+                let f_type = lineConnector.getMessageType();
+                console.log(d1)
+            }
+         }
+    )
+
+    }
+   
+]);
+
+
+
+
+bot.dialog('/leave', [
+    (s) => {
+          
+         lineConnector.leave().then(d=>{
+             console.log(d)
+         });
+   
+    }
+   
 ]);
 
 

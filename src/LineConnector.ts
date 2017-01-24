@@ -119,6 +119,10 @@ export class LineConnector implements botbuilder.IConnector {
     saveData;
     getData;
     replyToken;
+    groupType;
+    groupId;
+    messageId;
+    messageType;
     constructor(options,
         saveData: any,
         getData: any) {
@@ -154,6 +158,7 @@ export class LineConnector implements botbuilder.IConnector {
         }
         body.events.forEach(function (msg) {
             try {
+                console.log(msg);
                 let mid = "";
                 if (msg.source.type === "user") {
                     mid = msg.source.userId
@@ -162,11 +167,16 @@ export class LineConnector implements botbuilder.IConnector {
                 } else if (msg.source.type === "room") {
                     mid = msg.source.roomId
                 }
+                _this.groupId = mid;
+                _this.groupType = msg.source.type;
+                _this.messageId = msg.message.id;
+                _this.messageType = msg.message.type;
+
                 //console.log("msg.source",msg.source)
-                _this.replyToken =  msg.replyToken;
+                _this.replyToken = msg.replyToken;
 
                 let m = {
-                    type:'message',
+                    type: 'message',
                     address: {
                         id: mid,
                         channelId: "line:" + mid,
@@ -186,10 +196,10 @@ export class LineConnector implements botbuilder.IConnector {
                         id: mid,
                         name: "user"
                     },
-                    getUserProfile: mid,
+                    // getUserProfile: mid,
                     attachments: msg.attachments || [],
                     entities: msg.entities || [],
-                    
+
                     source: mid,
                     text: msg.message.text,
                 };
@@ -199,20 +209,20 @@ export class LineConnector implements botbuilder.IConnector {
                 if (msg.message.type !== "text") {
                     // m.text = msg.message.type;
                     m.type = msg.message.type;
-                    
-                    m.attachments = [msg.message]
-                    // if(msg.message.type==="image"){
-                    //     m.attachments= [{"type":"image","id":msg.message.id}];
-                    // }
-                    // else if(msg.message.type==="video"){
-                    //     m.attachments= [{"type":"video","id":msg.message.id}];
-                    // }
-                    // else if(msg.message.type==="audio"){
-                    //     m.attachments= [{"type":"audio","id":msg.message.id}];
-                    // }
-                    // else if(msg.message.type==="location"){
-                    //     m.attachments= [{"type":"location","id":msg.message.id,title:}];
-                    // }
+
+                    m.attachments = [msg.message];
+                    if(msg.message.type==="image"){
+                        m.attachments= [{"type":"image","id":msg.message.id}];
+                    }
+                    else if(msg.message.type==="video"){
+                        m.attachments= [{"type":"video","id":msg.message.id}];
+                    }
+                    else if(msg.message.type==="audio"){
+                        m.attachments= [{"type":"audio","id":msg.message.id}];
+                    }
+                    else if(msg.message.type==="location"){
+                        m.attachments= [{"type":"location","id":msg.message.id}];
+                    }
                 }
 
 
@@ -276,16 +286,38 @@ export class LineConnector implements botbuilder.IConnector {
         console.log("get", path);
         return fetch(this.endpoint + path, { method: 'GET', headers: this.headers });
     }
-    getUserProfile(userId) {
-        return this.get('/profile/' + userId).then(function (res) {
+    
+    getUserProfile() {
+        let url = '/profile/' + this.groupId;
+        return this.get(url).then(function (res) {
             return res.json();
         });
     }
 
-    getMessageContent(messageId) {
-        return this.get('/message/' + messageId + '/content/').then(function (res) {
-            return res.buffer();
+
+    getMessageType() {
+        return this.messageType;
+    }
+    getMessageContent() {
+        let _this = this;
+        return this.get('/message/' + this.messageId + '/content/').then(function (res) {
+            return res.buffer()
         });
+    }
+    leave() {
+        let url = '';
+        if (this.groupType === "group") {
+            url = '/group/' + this.groupId + '/leave';
+        } else if (this.groupType === "room") {
+            url = '/room/' + this.groupId + '/leave';
+        }
+         const body = {
+            replyToken: this.replyToken,
+        };
+        return this.post(url, body).then(function (res) {
+            return res.json();
+        });
+       
     }
 
 
@@ -337,7 +369,7 @@ export class LineConnector implements botbuilder.IConnector {
         messages.map((msg) => {
             // console.log("msg", msg)
             if (_this.sendProcess === null) {
-                _this.sendProcess = P(_this.replyToken );
+                _this.sendProcess = P(_this.replyToken);
             }
             if (msg.attachments !== undefined) {
                 // _this.renderAttachment(msg);
